@@ -7,6 +7,7 @@ import HealthRecommendations from './HealthRecommendations'
 import MentalHealthMonitor from './MentalHealthMonitor'
 import RelaxationExercises from './RelaxationExercises'
 import PersonalizedRecommendations from './PersonalizedRecommendations'
+import AIGymTrainer from './AIGymTrainer'
 
 export default function PatientDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -156,6 +157,7 @@ export default function PatientDashboard({ user }) {
           { id: 'mental-health', name: 'Mental Health', icon: '🧠' },
           { id: 'relaxation', name: 'Relaxation', icon: '🧘' },
           { id: 'ai-healthcare', name: 'AI Healthcare', icon: '🤖' },
+          { id: 'gym-trainer', name: 'AI Gym Trainer', icon: '🏋️' },
           { id: 'recommendations', name: 'Health Tips', icon: '💡' },
           { id: 'records', name: 'My Records', icon: '📋' },
           { id: 'appointments', name: 'Appointments', icon: '📅' },
@@ -231,6 +233,7 @@ export default function PatientDashboard({ user }) {
                 { id: 'symptoms', name: 'Check Symptoms', icon: '🔍', desc: 'AI symptom analysis' },
                 { id: 'mental-health', name: 'Mental Health', icon: '🧠', desc: 'AI mood & stress detection' },
                 { id: 'ai-healthcare', name: 'AI Healthcare', icon: '🤖', desc: 'Personalized recommendations' },
+                { id: 'gym-trainer', name: 'AI Gym Trainer', icon: '🏋️', desc: 'Personal fitness coach' },
                 { id: 'chat', name: 'Ask AI Doctor', icon: '💬', desc: 'Get medical guidance' },
                 { id: 'upload', name: 'Upload Record', icon: '📤', desc: 'Add medical documents' }
               ].map(action => (
@@ -290,6 +293,11 @@ export default function PatientDashboard({ user }) {
       {/* AI Healthcare Recommendations */}
       {activeTab === 'ai-healthcare' && (
         <PersonalizedRecommendations />
+      )}
+
+      {/* AI Gym Trainer */}
+      {activeTab === 'gym-trainer' && (
+        <AIGymTrainer />
       )}
 
       {/* Health Recommendations */}

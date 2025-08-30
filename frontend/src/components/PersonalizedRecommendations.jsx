@@ -18,6 +18,9 @@ export default function PersonalizedRecommendations() {
   const [dailyTasks, setDailyTasks] = useState([])
   const [streak, setStreak] = useState(0)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [dietPlan, setDietPlan] = useState(null)
+  const [waterIntake, setWaterIntake] = useState(0)
+  const [caloriesConsumed, setCaloriesConsumed] = useState(0)
 
   useEffect(() => {
     loadUserData()
@@ -78,6 +81,30 @@ export default function PersonalizedRecommendations() {
     
     setDailyTasks(tasks)
     localStorage.setItem('dailyTasks', JSON.stringify(tasks))
+    generateDietPlan()
+  }
+
+  const generateDietPlan = () => {
+    const bmi = patientProfile.weight && patientProfile.height ? 
+      patientProfile.weight / ((patientProfile.height/100)**2) : 25
+    
+    const plan = {
+      breakfast: bmi > 25 ? 
+        ['🥚 Oatmeal with berries', '🥚 Greek yogurt', '☕ Green tea'] :
+        ['🍳 Scrambled eggs', '🍞 Whole grain toast', '🥤 Orange juice'],
+      lunch: bmi > 25 ?
+        ['🥗 Grilled chicken salad', '🥒 Quinoa bowl', '💧 Water'] :
+        ['🍖 Grilled salmon', '🍚 Brown rice', '🥦 Steamed vegetables'],
+      dinner: bmi > 25 ?
+        ['🌯 Vegetable soup', '🥗 Mixed greens', '🍵 Herbal tea'] :
+        ['🍗 Lean protein', '🥔 Sweet potato', '🥦 Roasted vegetables'],
+      snacks: ['🍎 Apple slices', '🥜 Almonds', '🥕 Carrot sticks'],
+      targetCalories: bmi > 25 ? 1500 : 2000,
+      targetWater: 8
+    }
+    
+    setDietPlan(plan)
+    localStorage.setItem('dietPlan', JSON.stringify(plan))
   }
 
   const toggleTask = (taskId) => {
@@ -192,6 +219,110 @@ export default function PersonalizedRecommendations() {
                 <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
                   Completed: {dailyTasks.filter(t => t.completed).length}/{dailyTasks.length} tasks
                 </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '32px' }}>
+        {/* Health Analytics */}
+        <div style={cardStyle}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
+            📊 Health Analytics
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ textAlign: 'center', padding: '16px', backgroundColor: '#f0f9ff', borderRadius: '8px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6' }}>{streak}</div>
+              <div style={{ fontSize: '12px', color: '#6b7280' }}>Day Streak</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '16px', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>{dailyTasks.filter(t => t.completed).length}</div>
+              <div style={{ fontSize: '12px', color: '#6b7280' }}>Tasks Done</div>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Recommendations */}
+        <div style={cardStyle}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
+            🤖 AI Health Tips
+          </h2>
+          <div style={{ padding: '16px', backgroundColor: '#fef3c7', borderRadius: '8px', marginBottom: '12px' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
+              💡 Based on your profile: {patientProfile.age ? `Age ${patientProfile.age}` : 'Complete profile for personalized tips'}
+            </p>
+          </div>
+          <div style={{ padding: '16px', backgroundColor: '#f0f9ff', borderRadius: '8px' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
+              🎯 Daily Goal: Complete all health tasks to maintain your streak!
+            </p>
+          </div>
+        </div>
+
+        {/* Health Score */}
+        <div style={cardStyle}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
+            🏆 Health Score
+          </h2>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#10b981', marginBottom: '8px' }}>
+              {dailyTasks.length > 0 ? Math.round((dailyTasks.filter(t => t.completed).length / dailyTasks.length) * 100) : 0}
+            </div>
+            <div style={{ fontSize: '16px', color: '#6b7280', marginBottom: '16px' }}>Health Score</div>
+            <div style={{ width: '100%', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${dailyTasks.length > 0 ? (dailyTasks.filter(t => t.completed).length / dailyTasks.length) * 100 : 0}%`, height: '100%', backgroundColor: '#10b981', transition: 'width 0.3s ease' }}></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Daily Diet Plan */}
+        <div style={cardStyle}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
+            🍽️ Daily Diet Plan
+          </h2>
+          {!dietPlan ? (
+            <p style={{ textAlign: 'center', color: '#6b7280', padding: '32px' }}>
+              Complete your health profile to get a personalized diet plan!
+            </p>
+          ) : (
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#fef3c7', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#92400e' }}>{dietPlan.targetCalories}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Target Calories</div>
+                </div>
+                <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#f0f9ff', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e40af' }}>{dietPlan.targetWater}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Glasses of Water</div>
+                </div>
+              </div>
+              
+              <div style={{ display: 'grid', gap: '12px' }}>
+                <div style={{ padding: '12px', backgroundColor: '#fef3c7', borderRadius: '8px' }}>
+                  <h4 style={{ margin: 0, marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#92400e' }}>Breakfast</h4>
+                  <div style={{ fontSize: '12px', color: '#374151' }}>
+                    {dietPlan.breakfast.join(' • ')}
+                  </div>
+                </div>
+                <div style={{ padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
+                  <h4 style={{ margin: 0, marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#166534' }}>Lunch</h4>
+                  <div style={{ fontSize: '12px', color: '#374151' }}>
+                    {dietPlan.lunch.join(' • ')}
+                  </div>
+                </div>
+                <div style={{ padding: '12px', backgroundColor: '#f0f9ff', borderRadius: '8px' }}>
+                  <h4 style={{ margin: 0, marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>Dinner</h4>
+                  <div style={{ fontSize: '12px', color: '#374151' }}>
+                    {dietPlan.dinner.join(' • ')}
+                  </div>
+                </div>
+                <div style={{ padding: '12px', backgroundColor: '#fef2f2', borderRadius: '8px' }}>
+                  <h4 style={{ margin: 0, marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#dc2626' }}>Snacks</h4>
+                  <div style={{ fontSize: '12px', color: '#374151' }}>
+                    {dietPlan.snacks.join(' • ')}
+                  </div>
+                </div>
               </div>
             </div>
           )}

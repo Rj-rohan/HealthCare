@@ -336,6 +336,10 @@ def admin_stats():
 # Import AI emotion recognition
 from emotion_ai import emotion_ai
 from ml_models import healthcare_ai
+from exercise_analyzer import ExerciseAnalyzer
+
+# Initialize the exercise analyzer with ML model
+exercise_analyzer = ExerciseAnalyzer()
 
 # Mental Health Analysis endpoints
 @app.route('/api/mental-health/analyze-text', methods=['POST'])
@@ -373,6 +377,57 @@ def analyze_face():
     result = emotion_ai.analyze_face_image(image_data)
     
     return jsonify(result), 200
+
+# Exercise Analysis endpoints
+@app.route('/api/exercise/analyze', methods=['POST'])
+def analyze_exercise():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    image_data = data.get('image', '')
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    # Use OpenCV pose estimation for exercise analysis
+    result = exercise_analyzer.analyze_exercise(image_data, exercise_type)
+    
+    return jsonify(result), 200
+
+# Test endpoint for visual tracking (no auth required)
+@app.route('/api/test/exercise/analyze', methods=['POST'])
+def test_analyze_exercise():
+    data = request.json
+    image_data = data.get('image', '')
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    # Use OpenCV pose estimation for exercise analysis
+    result = exercise_analyzer.analyze_exercise(image_data, exercise_type)
+    
+    return jsonify(result), 200
+
+@app.route('/api/exercise/reset', methods=['POST'])
+def reset_exercise():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    # Reset exercise counter
+    exercise_analyzer.reset_exercise(exercise_type)
+    
+    return jsonify({'message': f'{exercise_type} counter reset'}), 200
+
+# Test endpoint for exercise reset (no auth required)
+@app.route('/api/test/exercise/reset', methods=['POST'])
+def test_reset_exercise():
+    data = request.json
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    # Reset exercise counter
+    exercise_analyzer.reset_exercise(exercise_type)
+    
+    return jsonify({'message': f'{exercise_type} counter reset'}), 200
 
 @app.route('/api/auth/status', methods=['GET'])
 def auth_status():

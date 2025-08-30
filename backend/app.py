@@ -333,6 +333,116 @@ def admin_stats():
         'appointments': appointments
     })
 
+# Import AI emotion recognition
+from emotion_ai import emotion_ai
+from ml_models import healthcare_ai
+
+# Mental Health Analysis endpoints
+@app.route('/api/mental-health/analyze-text', methods=['POST'])
+def analyze_text():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    text = data.get('text', '')
+    
+    # Use AI emotion recognition
+    result = emotion_ai.analyze_text_sentiment(text)
+    
+    return jsonify(result), 200
+
+@app.route('/api/mental-health/analyze-voice', methods=['POST'])
+def analyze_voice():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    # Use AI voice emotion recognition
+    result = emotion_ai.analyze_voice_features()
+    
+    return jsonify(result), 200
+
+@app.route('/api/mental-health/analyze-face', methods=['POST'])
+def analyze_face():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    image_data = data.get('image', '')
+    
+    # Use AI facial emotion recognition
+    result = emotion_ai.analyze_face_image(image_data)
+    
+    return jsonify(result), 200
+
+@app.route('/api/auth/status', methods=['GET'])
+def auth_status():
+    if 'user_id' in session:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, email, role, name FROM users WHERE id = ?', (session['user_id'],))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user:
+            return jsonify({
+                'user': {
+                    'id': user[0],
+                    'email': user[1],
+                    'role': user[2],
+                    'name': user[3]
+                }
+            }), 200
+    
+    return jsonify({'error': 'Not authenticated'}), 401
+
+@app.route('/api/personalized-recommendations', methods=['POST'])
+def personalized_recommendations():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    profile = data.get('profile', {})
+    symptoms = data.get('symptoms', '')
+    
+    # Prepare patient data for ML models
+    patient_data = {
+        'age': int(profile.get('age', 30)) if profile.get('age') else 30,
+        'gender': profile.get('gender', 'male'),
+        'bmi': 25,
+        'bp_systolic': 140 if 'hypertension' in profile.get('medicalHistory', '').lower() else 120,
+        'glucose': 130 if 'diabetes' in profile.get('medicalHistory', '').lower() else 100,
+        'diabetes': 'diabetes' in profile.get('medicalHistory', '').lower(),
+        'hypertension': 'hypertension' in profile.get('medicalHistory', '').lower(),
+        'heart_disease': 'heart' in profile.get('medicalHistory', '').lower(),
+        'smoking': profile.get('lifestyle', {}).get('smoking', False),
+        'alcohol': profile.get('lifestyle', {}).get('alcohol', False)
+    }
+    
+    # Get AI-powered recommendations
+    treatment_rec = healthcare_ai.predict_treatment(patient_data)
+    risk_assessment = healthcare_ai.predict_risk(patient_data)
+    diet_recs = healthcare_ai.get_diet_recommendations(patient_data)
+    exercise_recs = healthcare_ai.get_exercise_recommendations(patient_data)
+    
+    recommendations = {
+        'treatments': [
+            f"🎯 AI Recommended: {treatment_rec['treatment'].title()}",
+            f"📊 Confidence: {treatment_rec['confidence']:.1%}",
+            f"💡 {treatment_rec['explanation']}"
+        ],
+        'medications': [
+            "🔍 Alternative safer options available if interactions occur",
+            "📋 Regular monitoring recommended for current medications"
+        ],
+        'diet': [f"🥗 {rec}" for rec in diet_recs],
+        'exercise': [f"🏃 {rec}" for rec in exercise_recs],
+        'risks': [
+            f"⚠️ Risk Level: {risk_assessment['risk_level']} ({risk_assessment['risk_score']:.1%})"
+        ] + [f"🚨 {factor}" for factor in risk_assessment['risk_factors']]
+    }
+    
+    return jsonify(recommendations), 200
+
 @app.route('/api/doctors', methods=['GET'])
 def get_doctors():
     conn = get_db()

@@ -4,6 +4,9 @@ import SymptomChecker from './SymptomChecker'
 import MedicalChat from './MedicalChat'
 import ImageAnalysis from './ImageAnalysis'
 import HealthRecommendations from './HealthRecommendations'
+import MentalHealthMonitor from './MentalHealthMonitor'
+import RelaxationExercises from './RelaxationExercises'
+import PersonalizedRecommendations from './PersonalizedRecommendations'
 
 export default function PatientDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -150,6 +153,9 @@ export default function PatientDashboard({ user }) {
           { id: 'symptoms', name: 'Symptom Checker', icon: '🔍' },
           { id: 'chat', name: 'Medical Chat', icon: '💬' },
           { id: 'imaging', name: 'Image Analysis', icon: '📷' },
+          { id: 'mental-health', name: 'Mental Health', icon: '🧠' },
+          { id: 'relaxation', name: 'Relaxation', icon: '🧘' },
+          { id: 'ai-healthcare', name: 'AI Healthcare', icon: '🤖' },
           { id: 'recommendations', name: 'Health Tips', icon: '💡' },
           { id: 'records', name: 'My Records', icon: '📋' },
           { id: 'appointments', name: 'Appointments', icon: '📅' },
@@ -223,6 +229,8 @@ export default function PatientDashboard({ user }) {
               {[
                 { id: 'vitals', name: 'Monitor Vitals', icon: '❤️', desc: 'Track your vital signs' },
                 { id: 'symptoms', name: 'Check Symptoms', icon: '🔍', desc: 'AI symptom analysis' },
+                { id: 'mental-health', name: 'Mental Health', icon: '🧠', desc: 'AI mood & stress detection' },
+                { id: 'ai-healthcare', name: 'AI Healthcare', icon: '🤖', desc: 'Personalized recommendations' },
                 { id: 'chat', name: 'Ask AI Doctor', icon: '💬', desc: 'Get medical guidance' },
                 { id: 'upload', name: 'Upload Record', icon: '📤', desc: 'Add medical documents' }
               ].map(action => (
@@ -267,6 +275,21 @@ export default function PatientDashboard({ user }) {
       {/* Image Analysis */}
       {activeTab === 'imaging' && (
         <ImageAnalysis />
+      )}
+
+      {/* Mental Health Monitor */}
+      {activeTab === 'mental-health' && (
+        <MentalHealthMonitor />
+      )}
+
+      {/* Relaxation Exercises */}
+      {activeTab === 'relaxation' && (
+        <RelaxationExercises />
+      )}
+
+      {/* AI Healthcare Recommendations */}
+      {activeTab === 'ai-healthcare' && (
+        <PersonalizedRecommendations />
       )}
 
       {/* Health Recommendations */}

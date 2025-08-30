@@ -67,6 +67,21 @@ def init_db():
         )
     ''')
     
+    # Mental health records table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS mental_health_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            patient_id INTEGER NOT NULL,
+            analysis_type TEXT NOT NULL,
+            input_data TEXT,
+            sentiment TEXT,
+            confidence INTEGER,
+            stress_level INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (patient_id) REFERENCES users (id)
+        )
+    ''')
+    
     # Insert default admin
     admin_password = hashlib.sha256('admin123'.encode()).hexdigest()
     cursor.execute('''

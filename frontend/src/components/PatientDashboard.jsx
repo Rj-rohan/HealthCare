@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
+import io from 'socket.io-client'
+import '../styles/global.css'
 import VitalsMonitor from './VitalsMonitor'
 import SymptomChecker from './SymptomChecker'
 import MedicalChat from './MedicalChat'
 import ImageAnalysis from './ImageAnalysis'
 import HealthRecommendations from './HealthRecommendations'
+import VideoCall from './VideoCall'
 
 export default function PatientDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -24,11 +27,42 @@ export default function PatientDashboard({ user }) {
     appointment_date: ''
   })
 
+  // Video call states
+  const [socket, setSocket] = useState(null)
+  const [activeCall, setActiveCall] = useState(null)
+  const [incomingCall, setIncomingCall] = useState(null)
+  const [callStatus, setCallStatus] = useState('idle') // idle, calling, in-call
+
   useEffect(() => {
     fetchRecords()
     fetchAppointments()
     fetchDoctors()
+    initializeSocket()
+    
+    return () => {
+      if (socket) {
+        socket.disconnect()
+      }
+    }
   }, [])
+
+  const initializeSocket = () => {
+    const newSocket = io('http://localhost:8000', {
+      withCredentials: true
+    })
+    
+    newSocket.on('call_responded', (data) => {
+      if (data.response === 'accepted') {
+        setCallStatus('in-call')
+      } else if (data.response === 'declined') {
+        setCallStatus('idle')
+        setActiveCall(null)
+        alert('Call was declined by the doctor')
+      }
+    })
+    
+    setSocket(newSocket)
+  }
 
   const fetchRecords = async () => {
     try {
@@ -110,40 +144,275 @@ export default function PatientDashboard({ user }) {
     }
   }
 
+  const initiateVideoCall = async (doctorId) => {
+    try {
+      setCallStatus('calling')
+      
+      const response = await fetch('http://localhost:8000/api/call/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ doctor_id: doctorId })
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        setActiveCall(data.call_id)
+        
+        // Notify doctor via socket
+        if (socket) {
+          socket.emit('call_doctor', {
+            doctor_id: doctorId,
+            call_id: data.call_id
+          })
+        }
+        
+        // Auto-cancel after 30 seconds
+        setTimeout(() => {
+          if (callStatus === 'calling') {
+            setCallStatus('idle')
+            setActiveCall(null)
+          }
+        }, 30000)
+      }
+    } catch (err) {
+      console.error('Error initiating call:', err)
+      setCallStatus('idle')
+    }
+  }
+
+  const endVideoCall = async () => {
+    try {
+      if (activeCall) {
+        await fetch('http://localhost:8000/api/call/end', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ call_id: activeCall })
+        })
+      }
+      
+      setActiveCall(null)
+      setCallStatus('idle')
+    } catch (err) {
+      console.error('Error ending call:', err)
+    }
+  }
+
+  const VideoCallSection = () => (
+    <div style={cardStyle}>
+      <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
+        Video Call with Doctor
+      </h2>
+      
+      {callStatus === 'idle' && (
+        <div>
+          <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+            Select a doctor to start a video consultation
+          </p>
+          
+          <div style={{ display: 'grid', gap: '16px' }}>
+            {doctors.map(doctor => (
+              <div key={doctor.id} style={{
+                padding: '20px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                backgroundColor: '#f9fafb',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '4px' }}>
+                    Dr. {doctor.name}
+                  </h3>
+                  <p style={{ color: '#6b7280', margin: 0 }}>Available for consultation</p>
+                </div>
+                <button
+                  onClick={() => initiateVideoCall(doctor.id)}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  📹 Call Now
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {callStatus === 'calling' && (
+        <div style={{ textAlign: 'center', padding: '48px' }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            border: '4px solid #e5e7eb',
+            borderTop: '4px solid #10b981',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 24px'
+          }}></div>
+          <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>
+            Calling Doctor...
+          </h3>
+          <p style={{ color: '#6b7280', marginBottom: '24px' }}>Waiting for doctor to respond</p>
+          <button
+            onClick={() => {
+              setCallStatus('idle')
+              setActiveCall(null)
+            }}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel Call
+          </button>
+        </div>
+      )}
+
+    </div>
+  )
+
   const cardStyle = {
-    backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #f3f4f6',
-    marginBottom: '24px'
+    background: 'rgba(255, 255, 255, 0.15)',
+    backdropFilter: 'blur(30px)',
+    padding: 'clamp(20px, 5vw, 40px)',
+    borderRadius: 'clamp(16px, 4vw, 24px)',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(255, 255, 255, 0.2)',
+    marginBottom: 'clamp(20px, 5vw, 40px)',
+    position: 'relative',
+    zIndex: 1,
+    animation: 'slideIn 0.6s ease-out'
   }
 
   const inputStyle = {
     width: '100%',
-    padding: '12px 16px',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    fontSize: '16px',
+    padding: 'clamp(12px, 3vw, 16px)',
+    border: '2px solid rgba(0, 0, 0, 0.1)',
+    borderRadius: 'clamp(8px, 2vw, 12px)',
+    fontSize: 'clamp(14px, 3.5vw, 16px)',
     outline: 'none',
-    marginBottom: '16px'
+    marginBottom: 'clamp(12px, 3vw, 20px)',
+    transition: 'all 0.3s ease',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backdropFilter: 'blur(10px)'
   }
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)',
-      padding: '32px'
+      background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 50%, #f0f9ff 100%)',
+      padding: 'clamp(16px, 4vw, 32px)',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '8px' }}>
-          Welcome, {user.name}
-        </h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>Patient Dashboard</p>
+      {/* Animated Background Elements */}
+      <div style={{
+        position: 'fixed',
+        top: '5%',
+        right: '5%',
+        width: 'clamp(150px, 25vw, 300px)',
+        height: 'clamp(150px, 25vw, 300px)',
+        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+        borderRadius: '50%',
+        animation: 'bounce 8s ease-in-out infinite',
+        pointerEvents: 'none',
+        zIndex: 0
+      }}></div>
+      <div style={{
+        position: 'fixed',
+        bottom: '10%',
+        left: '10%',
+        width: 'clamp(100px, 20vw, 200px)',
+        height: 'clamp(100px, 20vw, 200px)',
+        background: 'radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)',
+        borderRadius: '50%',
+        animation: 'bounce 12s ease-in-out infinite reverse',
+        pointerEvents: 'none',
+        zIndex: 0
+      }}></div>
+      <div style={{ 
+        marginBottom: 'clamp(32px, 8vw, 48px)',
+        position: 'relative',
+        zIndex: 1,
+        animation: 'slideIn 0.8s ease-out'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 20px)', marginBottom: '12px' }}>
+          <div style={{
+            width: 'clamp(50px, 10vw, 70px)',
+            height: 'clamp(50px, 10vw, 70px)',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 'clamp(20px, 5vw, 28px)',
+            boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
+            animation: 'pulse 3s ease-in-out infinite'
+          }}>
+            👤
+          </div>
+          <h1 style={{ 
+            fontSize: 'clamp(28px, 7vw, 42px)', 
+            fontWeight: '800', 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            margin: 0,
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          }}>
+            Welcome, {user.name}!
+          </h1>
+        </div>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+          background: 'rgba(255, 255, 255, 0.2)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '25px',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+        }}>
+          <span style={{ fontSize: 'clamp(16px, 4vw, 20px)' }}>🏥</span>
+          <span style={{ 
+            color: '#374151', 
+            fontSize: 'clamp(14px, 3.5vw, 18px)',
+            fontWeight: '600'
+          }}>
+            Patient Dashboard
+          </span>
+        </div>
       </div>
 
       {/* Navigation */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(120px, 25vw, 160px), 1fr))',
+        gap: 'clamp(8px, 2vw, 16px)', 
+        marginBottom: 'clamp(24px, 6vw, 40px)'
+      }}>
         {[
           { id: 'dashboard', name: 'Dashboard', icon: '🏠' },
           { id: 'vitals', name: 'Vitals Monitor', icon: '❤️' },
@@ -151,6 +420,7 @@ export default function PatientDashboard({ user }) {
           { id: 'chat', name: 'Medical Chat', icon: '💬' },
           { id: 'imaging', name: 'Image Analysis', icon: '📷' },
           { id: 'recommendations', name: 'Health Tips', icon: '💡' },
+          { id: 'videocall', name: 'Video Call', icon: '📹' },
           { id: 'records', name: 'My Records', icon: '📋' },
           { id: 'appointments', name: 'Appointments', icon: '📅' },
           { id: 'upload', name: 'Upload Record', icon: '📤' }
@@ -159,14 +429,22 @@ export default function PatientDashboard({ user }) {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              padding: '8px 16px',
-              border: activeTab === tab.id ? '2px solid #2563eb' : '1px solid #d1d5db',
-              borderRadius: '8px',
-              backgroundColor: activeTab === tab.id ? '#dbeafe' : 'white',
-              color: activeTab === tab.id ? '#2563eb' : '#374151',
+              padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px)',
+              border: activeTab === tab.id ? '2px solid #3b82f6' : '1px solid rgba(0, 0, 0, 0.1)',
+              borderRadius: 'clamp(8px, 2vw, 12px)',
+              background: activeTab === tab.id ? 
+                'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' : 
+                'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(10px)',
+              color: activeTab === tab.id ? '#1d4ed8' : '#374151',
               cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500'
+              fontSize: 'clamp(12px, 2.5vw, 14px)',
+              fontWeight: '600',
+              transition: 'all 0.3s ease',
+              boxShadow: activeTab === tab.id ? 
+                '0 4px 15px rgba(59, 130, 246, 0.2)' : 
+                '0 2px 8px rgba(0, 0, 0, 0.1)',
+              textAlign: 'center'
             }}
           >
             {tab.icon} {tab.name}
@@ -224,24 +502,46 @@ export default function PatientDashboard({ user }) {
                 { id: 'vitals', name: 'Monitor Vitals', icon: '❤️', desc: 'Track your vital signs' },
                 { id: 'symptoms', name: 'Check Symptoms', icon: '🔍', desc: 'AI symptom analysis' },
                 { id: 'chat', name: 'Ask AI Doctor', icon: '💬', desc: 'Get medical guidance' },
+                { id: 'videocall', name: 'Video Call Doctor', icon: '📹', desc: 'Connect with a doctor' },
                 { id: 'upload', name: 'Upload Record', icon: '📤', desc: 'Add medical documents' }
               ].map(action => (
                 <button
                   key={action.id}
                   onClick={() => setActiveTab(action.id)}
+                  className="hover-lift"
                   style={{
-                    padding: '16px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    backgroundColor: '#f9fafb',
+                    padding: 'clamp(16px, 4vw, 24px)',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    backdropFilter: 'blur(15px)',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: 'clamp(12px, 3vw, 16px)',
                     cursor: 'pointer',
                     textAlign: 'left',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
                 >
-                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>{action.icon}</div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '4px' }}>{action.name}</h3>
-                  <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>{action.desc}</p>
+                  <div style={{ 
+                    fontSize: 'clamp(28px, 7vw, 36px)', 
+                    marginBottom: '12px',
+                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+                  }}>{action.icon}</div>
+                  <h3 style={{ 
+                    fontSize: 'clamp(16px, 4vw, 20px)', 
+                    fontWeight: '700', 
+                    color: '#111827', 
+                    margin: 0, 
+                    marginBottom: '6px',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  }}>{action.name}</h3>
+                  <p style={{ 
+                    fontSize: 'clamp(13px, 3vw, 15px)', 
+                    color: '#6b7280', 
+                    margin: 0,
+                    lineHeight: '1.4'
+                  }}>{action.desc}</p>
                 </button>
               ))}
             </div>
@@ -272,6 +572,11 @@ export default function PatientDashboard({ user }) {
       {/* Health Recommendations */}
       {activeTab === 'recommendations' && (
         <HealthRecommendations />
+      )}
+
+      {/* Video Call */}
+      {activeTab === 'videocall' && (
+        <VideoCallSection />
       )}
 
       {/* Medical Records */}
@@ -557,6 +862,16 @@ export default function PatientDashboard({ user }) {
             </button>
           </form>
         </div>
+      )}
+      
+      {/* Active Video Call */}
+      {callStatus === 'in-call' && activeCall && (
+        <VideoCall
+          callId={activeCall}
+          onEndCall={endVideoCall}
+          userRole="patient"
+          isInitiator={true}
+        />
       )}
     </div>
   )

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Test</title>
+</head>
+<body>
+    <h1>Camera Permission Test</h1>
+    <video id="video" width="320" height="240" autoplay></video>
+    <br>
+    <button onclick="startCamera()">Test Camera</button>
+    <div id="status"></div>
+
+    <script>
+        async function startCamera() {
+            const video = document.getElementById('video');
+            const status = document.getElementById('status');
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+                video.srcObject = stream;
+                status.innerHTML = '<p style="color: green;">Camera access granted!</p>';
+            } catch (error) {
+                console.error('Camera error:', error);
+                status.innerHTML = '<p style="color: red;">Camera access denied: ' + error.message + '</p>';
+                
+                if (error.name === 'NotAllowedError') {
+                    status.innerHTML += '<p>Please allow camera access in your browser settings.</p>';
+                } else if (error.name === 'NotFoundError') {
+                    status.innerHTML += '<p>No camera found on this device.</p>';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

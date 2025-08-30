@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import '../styles/global.css'
 
 export default function AdminDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('overview')
@@ -36,12 +37,16 @@ export default function AdminDashboard({ user }) {
   }
 
   const cardStyle = {
-    backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #f3f4f6',
-    marginBottom: '24px'
+    background: 'rgba(255, 255, 255, 0.15)',
+    backdropFilter: 'blur(30px)',
+    padding: 'clamp(20px, 5vw, 40px)',
+    borderRadius: 'clamp(16px, 4vw, 24px)',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(255, 255, 255, 0.2)',
+    marginBottom: 'clamp(20px, 5vw, 40px)',
+    position: 'relative',
+    zIndex: 1,
+    animation: 'slideIn 0.6s ease-out'
   }
 
   const getRoleColor = (role) => {
@@ -56,18 +61,100 @@ export default function AdminDashboard({ user }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)',
-      padding: '32px'
+      background: 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fef7cd 100%)',
+      padding: 'clamp(16px, 4vw, 32px)',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '8px' }}>
-          Welcome, {user.name}
-        </h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>System Administrator Dashboard</p>
+      {/* Animated Background Elements */}
+      <div style={{
+        position: 'fixed',
+        top: '12%',
+        right: '10%',
+        width: 'clamp(100px, 18vw, 220px)',
+        height: 'clamp(100px, 18vw, 220px)',
+        background: 'radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%)',
+        borderRadius: '50%',
+        animation: 'bounce 12s ease-in-out infinite',
+        pointerEvents: 'none',
+        zIndex: 0
+      }}></div>
+      <div style={{
+        position: 'fixed',
+        bottom: '20%',
+        left: '8%',
+        width: 'clamp(70px, 12vw, 160px)',
+        height: 'clamp(70px, 12vw, 160px)',
+        background: 'radial-gradient(circle, rgba(251, 191, 36, 0.08) 0%, transparent 70%)',
+        borderRadius: '50%',
+        animation: 'bounce 16s ease-in-out infinite reverse',
+        pointerEvents: 'none',
+        zIndex: 0
+      }}></div>
+      <div style={{ 
+        marginBottom: 'clamp(32px, 8vw, 48px)',
+        position: 'relative',
+        zIndex: 1,
+        animation: 'slideIn 0.8s ease-out'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 20px)', marginBottom: '12px' }}>
+          <div style={{
+            width: 'clamp(50px, 10vw, 70px)',
+            height: 'clamp(50px, 10vw, 70px)',
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 'clamp(20px, 5vw, 28px)',
+            boxShadow: '0 8px 25px rgba(245, 158, 11, 0.3)',
+            animation: 'pulse 3s ease-in-out infinite'
+          }}>
+            👨💼
+          </div>
+          <h1 style={{ 
+            fontSize: 'clamp(28px, 7vw, 42px)', 
+            fontWeight: '800', 
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            margin: 0,
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          }}>
+            Welcome, {user.name}!
+          </h1>
+        </div>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+          background: 'rgba(255, 255, 255, 0.2)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '25px',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+        }}>
+          <span style={{ fontSize: 'clamp(16px, 4vw, 20px)' }}>🏥</span>
+          <span style={{ 
+            color: '#374151', 
+            fontSize: 'clamp(14px, 3.5vw, 18px)',
+            fontWeight: '600'
+          }}>
+            System Administrator Dashboard
+          </span>
+        </div>
       </div>
 
       {/* Navigation */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(140px, 28vw, 180px), 1fr))',
+        gap: 'clamp(8px, 2vw, 16px)', 
+        marginBottom: 'clamp(24px, 6vw, 40px)',
+        position: 'relative',
+        zIndex: 1
+      }}>
         {[
           { id: 'overview', name: 'System Overview', icon: '📊' },
           { id: 'users', name: 'Manage Users', icon: '👥' },
@@ -77,14 +164,22 @@ export default function AdminDashboard({ user }) {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              padding: '12px 24px',
-              border: activeTab === tab.id ? '2px solid #d97706' : '1px solid #d1d5db',
-              borderRadius: '8px',
-              backgroundColor: activeTab === tab.id ? '#fef3c7' : 'white',
+              padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px)',
+              border: activeTab === tab.id ? '2px solid #f59e0b' : '1px solid rgba(0, 0, 0, 0.1)',
+              borderRadius: 'clamp(8px, 2vw, 12px)',
+              background: activeTab === tab.id ? 
+                'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' : 
+                'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(10px)',
               color: activeTab === tab.id ? '#d97706' : '#374151',
               cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: '500'
+              fontSize: 'clamp(12px, 2.5vw, 14px)',
+              fontWeight: '600',
+              transition: 'all 0.3s ease',
+              boxShadow: activeTab === tab.id ? 
+                '0 4px 15px rgba(245, 158, 11, 0.2)' : 
+                '0 2px 8px rgba(0, 0, 0, 0.1)',
+              textAlign: 'center'
             }}
           >
             {tab.icon} {tab.name}

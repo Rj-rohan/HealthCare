@@ -67,6 +67,37 @@ def init_db():
         )
     ''')
     
+    # Video calls table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS video_calls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            patient_id INTEGER NOT NULL,
+            doctor_id INTEGER NOT NULL,
+            status TEXT DEFAULT 'calling',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            responded_at TIMESTAMP,
+            ended_at TIMESTAMP,
+            FOREIGN KEY (patient_id) REFERENCES users (id),
+            FOREIGN KEY (doctor_id) REFERENCES users (id)
+        )
+    ''')
+    
+    # Video calls table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS video_calls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            patient_id INTEGER NOT NULL,
+            doctor_id INTEGER NOT NULL,
+            status TEXT DEFAULT 'calling' CHECK (status IN ('calling', 'accepted', 'declined', 'ended')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            responded_at TIMESTAMP,
+            ended_at TIMESTAMP,
+            duration INTEGER,
+            FOREIGN KEY (patient_id) REFERENCES users (id),
+            FOREIGN KEY (doctor_id) REFERENCES users (id)
+        )
+    ''')
+    
     # Insert default admin
     admin_password = hashlib.sha256('admin123'.encode()).hexdigest()
     cursor.execute('''

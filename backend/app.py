@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import hashlib
 import sqlite3
 from datetime import datetime
@@ -14,7 +15,12 @@ except ImportError:
 
 app = Flask(__name__)
 app.secret_key = 'healthcare_secret_key'
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
+
+# Store active calls and user sessions
+active_calls = {}
+user_sessions = {}
 
 # Initialize database
 init_db()
@@ -343,5 +349,207 @@ def get_doctors():
     
     return jsonify([{'id': d[0], 'name': d[1]} for d in doctors])
 
+# Video Call Routes
+@app.route('/api/call/initiate', methods=['POST'])
+def initiate_call():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    doctor_id = data.get('doctor_id')
+    
+    # Store call in database
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO video_calls (patient_id, doctor_id, status)
+        VALUES (?, ?, 'calling')
+    ''', (session['user_id'], doctor_id))
+    call_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    
+    # Store active call
+    active_calls[call_id] = {
+        'patient_id': session['user_id'],
+        'doctor_id': doctor_id,
+        'status': 'calling',
+        'created_at': datetime.now().isoformat()
+    }
+    
+    return jsonify({'call_id': call_id, 'status': 'calling'})
+
+@app.route('/api/call/respond', methods=['POST'])
+def respond_call():
+    if 'user_id' not in session or session['role'] != 'doctor':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    call_id = data.get('call_id')
+    response = data.get('response')  # 'accept' or 'decline'
+    
+    # Update call in database
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE video_calls SET status = ?, responded_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND doctor_id = ?
+    ''', (response + 'ed', call_id, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    # Update active call
+    if call_id in active_calls:
+        active_calls[call_id]['status'] = response + 'ed'
+    
+    return jsonify({'status': response + 'ed'})
+
+@app.route('/api/call/end', methods=['POST'])
+def end_call():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    call_id = data.get('call_id')
+    
+    # Update call in database
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE video_calls SET status = 'ended', ended_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    ''', (call_id,))
+    conn.commit()
+    conn.close()
+    
+    # Remove from active calls
+    if call_id in active_calls:
+        del active_calls[call_id]
+    
+    return jsonify({'status': 'ended'})
+
+@app.route('/api/call/active', methods=['GET'])
+def get_active_calls():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    user_calls = []
+    for call_id, call_data in active_calls.items():
+        if (session['role'] == 'patient' and call_data['patient_id'] == session['user_id']) or \
+           (session['role'] == 'doctor' and call_data['doctor_id'] == session['user_id']):
+            
+            # Get user names
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute('SELECT name FROM users WHERE id = ?', (call_data['patient_id'],))
+            patient_name = cursor.fetchone()[0]
+            cursor.execute('SELECT name FROM users WHERE id = ?', (call_data['doctor_id'],))
+            doctor_name = cursor.fetchone()[0]
+            conn.close()
+            
+            user_calls.append({
+                'call_id': call_id,
+                'patient_name': patient_name,
+                'doctor_name': doctor_name,
+                'status': call_data['status'],
+                'created_at': call_data['created_at']
+            })
+    
+    return jsonify(user_calls)
+
+# Socket.IO Events for Video Calling
+@socketio.on('connect')
+def handle_connect():
+    if 'user_id' in session:
+        user_sessions[session['user_id']] = request.sid
+        join_room(f"user_{session['user_id']}")
+        emit('connected', {'user_id': session['user_id']})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    if 'user_id' in session and session['user_id'] in user_sessions:
+        leave_room(f"user_{session['user_id']}")
+        del user_sessions[session['user_id']]
+
+@socketio.on('call_doctor')
+def handle_call_doctor(data):
+    doctor_id = data['doctor_id']
+    patient_id = session['user_id']
+    call_id = data['call_id']
+    
+    # Get patient name
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT name FROM users WHERE id = ?', (patient_id,))
+    patient_name = cursor.fetchone()[0]
+    conn.close()
+    
+    # Notify doctor about incoming call
+    socketio.emit('incoming_call', {
+        'call_id': call_id,
+        'patient_id': patient_id,
+        'patient_name': patient_name
+    }, room=f"user_{doctor_id}")
+
+@socketio.on('call_response')
+def handle_call_response(data):
+    call_id = data['call_id']
+    response = data['response']
+    
+    if call_id in active_calls:
+        patient_id = active_calls[call_id]['patient_id']
+        doctor_id = active_calls[call_id]['doctor_id']
+        
+        # Update call status
+        active_calls[call_id]['status'] = response + 'd'
+        
+        # Notify patient about response
+        socketio.emit('call_responded', {
+            'call_id': call_id,
+            'response': response + 'd'
+        }, room=f"user_{patient_id}")
+        
+        if response == 'accept':
+            # Start WebRTC signaling
+            socketio.emit('start_call', {
+                'call_id': call_id,
+                'room': f"call_{call_id}"
+            }, room=f"user_{patient_id}")
+            socketio.emit('start_call', {
+                'call_id': call_id,
+                'room': f"call_{call_id}"
+            }, room=f"user_{doctor_id}")
+        else:
+            # Remove declined call from active calls
+            del active_calls[call_id]
+
+@socketio.on('join_call')
+def handle_join_call(data):
+    call_id = data['call_id']
+    join_room(f"call_{call_id}")
+    emit('user_joined', {'user_id': session['user_id']}, room=f"call_{call_id}", include_self=False)
+
+@socketio.on('leave_call')
+def handle_leave_call(data):
+    call_id = data['call_id']
+    leave_room(f"call_{call_id}")
+    emit('user_left', {'user_id': session['user_id']}, room=f"call_{call_id}")
+
+# WebRTC Signaling Events
+@socketio.on('offer')
+def handle_offer(data):
+    call_id = data['call_id']
+    emit('offer', data, room=f"call_{call_id}", include_self=False)
+
+@socketio.on('answer')
+def handle_answer(data):
+    call_id = data['call_id']
+    emit('answer', data, room=f"call_{call_id}", include_self=False)
+
+@socketio.on('ice_candidate')
+def handle_ice_candidate(data):
+    call_id = data['call_id']
+    emit('ice_candidate', data, room=f"call_{call_id}", include_self=False)
+
 if __name__ == '__main__':
-    app.run(debug=True, port=8000)
+    socketio.run(app, debug=True, port=8000, allow_unsafe_werkzeug=True)

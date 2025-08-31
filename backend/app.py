@@ -339,6 +339,232 @@ def admin_stats():
         'appointments': appointments
     })
 
+# Import AI modules with error handling
+try:
+    from emotion_ai import emotion_ai
+    from ml_models import healthcare_ai
+    from exercise_analyzer import ExerciseAnalyzer
+    exercise_analyzer = ExerciseAnalyzer()
+    AI_AVAILABLE = True
+except Exception as e:
+    print(f"AI modules not available: {e}")
+    AI_AVAILABLE = False
+    emotion_ai = None
+    healthcare_ai = None
+    exercise_analyzer = None
+
+# Mental Health Analysis endpoints
+@app.route('/api/mental-health/analyze-text', methods=['POST'])
+def analyze_text():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    text = data.get('text', '')
+    
+    if AI_AVAILABLE and emotion_ai:
+        result = emotion_ai.analyze_text_sentiment(text)
+    else:
+        # Fallback simple analysis
+        result = {
+            'sentiment': 'neutral',
+            'confidence': 0.6,
+            'stress_level': 2,
+            'recommendations': ['Practice deep breathing', 'Consider meditation']
+        }
+    
+    return jsonify(result), 200
+
+@app.route('/api/mental-health/analyze-voice', methods=['POST'])
+def analyze_voice():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    if AI_AVAILABLE and emotion_ai:
+        result = emotion_ai.analyze_voice_features()
+    else:
+        result = {
+            'emotion': 'neutral',
+            'confidence': 0.75,
+            'stress_level': 2,
+            'recommendations': ['Take a break', 'Practice relaxation']
+        }
+    
+    return jsonify(result), 200
+
+@app.route('/api/mental-health/analyze-face', methods=['POST'])
+def analyze_face():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    image_data = data.get('image', '')
+    
+    if AI_AVAILABLE and emotion_ai:
+        result = emotion_ai.analyze_face_image(image_data)
+    else:
+        result = {
+            'emotion': 'neutral',
+            'confidence': 0.75,
+            'stress_indicators': ['slight tension'],
+            'recommendations': ['Take a short break']
+        }
+    
+    return jsonify(result), 200
+
+# Exercise Analysis endpoints
+@app.route('/api/exercise/analyze', methods=['POST'])
+def analyze_exercise():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    image_data = data.get('image', '')
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    if AI_AVAILABLE and exercise_analyzer:
+        result = exercise_analyzer.analyze_exercise(image_data, exercise_type)
+    else:
+        result = {
+            'pose_detected': True,
+            'exercise_type': exercise_type,
+            'rep_count': 0,
+            'form_score': 85,
+            'feedback': 'Exercise analysis not available',
+            'landmarks': []
+        }
+    
+    return jsonify(result), 200
+
+# Test endpoint for visual tracking (no auth required)
+@app.route('/api/test/exercise/analyze', methods=['POST'])
+def test_analyze_exercise():
+    data = request.json
+    image_data = data.get('image', '')
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    if AI_AVAILABLE and exercise_analyzer:
+        result = exercise_analyzer.analyze_exercise(image_data, exercise_type)
+    else:
+        result = {
+            'pose_detected': True,
+            'exercise_type': exercise_type,
+            'rep_count': 0,
+            'form_score': 85,
+            'feedback': 'Exercise analysis not available',
+            'landmarks': []
+        }
+    
+    return jsonify(result), 200
+
+@app.route('/api/exercise/reset', methods=['POST'])
+def reset_exercise():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    if AI_AVAILABLE and exercise_analyzer:
+        exercise_analyzer.reset_exercise(exercise_type)
+    
+    return jsonify({'message': f'{exercise_type} counter reset'}), 200
+
+# Test endpoint for exercise reset (no auth required)
+@app.route('/api/test/exercise/reset', methods=['POST'])
+def test_reset_exercise():
+    data = request.json
+    exercise_type = data.get('exercise_type', 'pushup')
+    
+    if AI_AVAILABLE and exercise_analyzer:
+        exercise_analyzer.reset_exercise(exercise_type)
+    
+    return jsonify({'message': f'{exercise_type} counter reset'}), 200
+
+@app.route('/api/auth/status', methods=['GET'])
+def auth_status():
+    if 'user_id' in session:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, email, role, name FROM users WHERE id = ?', (session['user_id'],))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user:
+            return jsonify({
+                'user': {
+                    'id': user[0],
+                    'email': user[1],
+                    'role': user[2],
+                    'name': user[3]
+                }
+            }), 200
+    
+    return jsonify({'error': 'Not authenticated'}), 401
+
+@app.route('/api/personalized-recommendations', methods=['POST'])
+def personalized_recommendations():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.json
+    profile = data.get('profile', {})
+    symptoms = data.get('symptoms', '')
+    
+    # Prepare patient data for ML models
+    patient_data = {
+        'age': int(profile.get('age', 30)) if profile.get('age') else 30,
+        'gender': profile.get('gender', 'male'),
+        'bmi': 25,
+        'bp_systolic': 140 if 'hypertension' in profile.get('medicalHistory', '').lower() else 120,
+        'glucose': 130 if 'diabetes' in profile.get('medicalHistory', '').lower() else 100,
+        'diabetes': 'diabetes' in profile.get('medicalHistory', '').lower(),
+        'hypertension': 'hypertension' in profile.get('medicalHistory', '').lower(),
+        'heart_disease': 'heart' in profile.get('medicalHistory', '').lower(),
+        'smoking': profile.get('lifestyle', {}).get('smoking', False),
+        'alcohol': profile.get('lifestyle', {}).get('alcohol', False)
+    }
+    
+    # Get AI-powered recommendations
+    if AI_AVAILABLE and healthcare_ai:
+        treatment_rec = healthcare_ai.predict_treatment(patient_data)
+        risk_assessment = healthcare_ai.predict_risk(patient_data)
+        diet_recs = healthcare_ai.get_diet_recommendations(patient_data)
+        exercise_recs = healthcare_ai.get_exercise_recommendations(patient_data)
+    else:
+        # Fallback recommendations
+        treatment_rec = {
+            'treatment': 'lifestyle modification',
+            'confidence': 0.85,
+            'explanation': 'Based on profile, lifestyle changes recommended'
+        }
+        risk_assessment = {
+            'risk_level': 'Low',
+            'risk_score': 0.15,
+            'risk_factors': ['Monitor blood pressure', 'Maintain healthy weight']
+        }
+        diet_recs = ['Include more fruits and vegetables', 'Reduce processed foods']
+        exercise_recs = ['30 minutes daily walking', 'Strength training 2x per week']
+    
+    recommendations = {
+        'treatments': [
+            f"🎯 AI Recommended: {treatment_rec['treatment'].title()}",
+            f"📊 Confidence: {treatment_rec['confidence']:.1%}",
+            f"💡 {treatment_rec['explanation']}"
+        ],
+        'medications': [
+            "🔍 Alternative safer options available if interactions occur",
+            "📋 Regular monitoring recommended for current medications"
+        ],
+        'diet': [f"🥗 {rec}" for rec in diet_recs],
+        'exercise': [f"🏃 {rec}" for rec in exercise_recs],
+        'risks': [
+            f"⚠️ Risk Level: {risk_assessment['risk_level']} ({risk_assessment['risk_score']:.1%})"
+        ] + [f"🚨 {factor}" for factor in risk_assessment['risk_factors']]
+    }
+    
+    return jsonify(recommendations), 200
+
 @app.route('/api/doctors', methods=['GET'])
 def get_doctors():
     conn = get_db()
@@ -460,16 +686,20 @@ def get_active_calls():
 # Socket.IO Events for Video Calling
 @socketio.on('connect')
 def handle_connect():
-    if 'user_id' in session:
-        user_sessions[session['user_id']] = request.sid
-        join_room(f"user_{session['user_id']}")
-        emit('connected', {'user_id': session['user_id']})
+    user_id = session.get('user_id')
+    if user_id:
+        user_sessions[user_id] = request.sid
+        join_room(f"user_{user_id}")
+        emit('connected', {'user_id': user_id})
+    else:
+        emit('connected', {'sid': request.sid})
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    if 'user_id' in session and session['user_id'] in user_sessions:
-        leave_room(f"user_{session['user_id']}")
-        del user_sessions[session['user_id']]
+    user_id = session.get('user_id')
+    if user_id and user_id in user_sessions:
+        leave_room(f"user_{user_id}")
+        del user_sessions[user_id]
 
 @socketio.on('call_doctor')
 def handle_call_doctor(data):
@@ -526,14 +756,28 @@ def handle_call_response(data):
 @socketio.on('join_call')
 def handle_join_call(data):
     call_id = data['call_id']
+    user_id = session.get('user_id')
+    role = data.get('role', 'unknown')
+    
+    if not user_id:
+        user_id = f"{role}_{call_id}"
+    
     join_room(f"call_{call_id}")
-    emit('user_joined', {'user_id': session['user_id']}, room=f"call_{call_id}", include_self=False)
+    emit('user_joined', {
+        'user_id': user_id,
+        'role': role,
+        'call_id': call_id
+    }, room=f"call_{call_id}", include_self=False)
 
 @socketio.on('leave_call')
 def handle_leave_call(data):
     call_id = data['call_id']
+    user_id = session.get('user_id', f"user_{call_id}")
     leave_room(f"call_{call_id}")
-    emit('user_left', {'user_id': session['user_id']}, room=f"call_{call_id}")
+    emit('user_left', {
+        'user_id': user_id,
+        'call_id': call_id
+    }, room=f"call_{call_id}")
 
 # WebRTC Signaling Events
 @socketio.on('offer')

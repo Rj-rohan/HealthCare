@@ -15,9 +15,16 @@ function App() {
 
   const checkAuthStatus = async () => {
     try {
-      // This would typically check session/token
-      setLoading(false)
+      const response = await fetch('http://localhost:8000/api/auth/status', {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const userData = await response.json()
+        setUser(userData.user)
+      }
     } catch (err) {
+      console.error('Auth check failed:', err)
+    } finally {
       setLoading(false)
     }
   }

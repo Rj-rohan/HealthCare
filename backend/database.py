@@ -73,21 +73,6 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             patient_id INTEGER NOT NULL,
             doctor_id INTEGER NOT NULL,
-            status TEXT DEFAULT 'calling',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            responded_at TIMESTAMP,
-            ended_at TIMESTAMP,
-            FOREIGN KEY (patient_id) REFERENCES users (id),
-            FOREIGN KEY (doctor_id) REFERENCES users (id)
-        )
-    ''')
-    
-    # Video calls table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS video_calls (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            patient_id INTEGER NOT NULL,
-            doctor_id INTEGER NOT NULL,
             status TEXT DEFAULT 'calling' CHECK (status IN ('calling', 'accepted', 'declined', 'ended')),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             responded_at TIMESTAMP,
@@ -95,6 +80,21 @@ def init_db():
             duration INTEGER,
             FOREIGN KEY (patient_id) REFERENCES users (id),
             FOREIGN KEY (doctor_id) REFERENCES users (id)
+        )
+    ''')
+    
+    # Mental health records table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS mental_health_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            patient_id INTEGER NOT NULL,
+            analysis_type TEXT NOT NULL,
+            input_data TEXT,
+            sentiment TEXT,
+            confidence INTEGER,
+            stress_level INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (patient_id) REFERENCES users (id)
         )
     ''')
     

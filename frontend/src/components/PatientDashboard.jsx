@@ -7,6 +7,10 @@ import MedicalChat from './MedicalChat'
 import ImageAnalysis from './ImageAnalysis'
 import HealthRecommendations from './HealthRecommendations'
 import VideoCall from './VideoCall'
+import MentalHealthMonitor from './MentalHealthMonitor'
+import RelaxationExercises from './RelaxationExercises'
+import PersonalizedRecommendations from './PersonalizedRecommendations'
+import AIGymTrainer from './AIGymTrainer'
 
 export default function PatientDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -419,6 +423,10 @@ export default function PatientDashboard({ user }) {
           { id: 'symptoms', name: 'Symptom Checker', icon: '🔍' },
           { id: 'chat', name: 'Medical Chat', icon: '💬' },
           { id: 'imaging', name: 'Image Analysis', icon: '📷' },
+          { id: 'mental-health', name: 'Mental Health', icon: '🧠' },
+          { id: 'relaxation', name: 'Relaxation', icon: '🧘' },
+          { id: 'ai-healthcare', name: 'AI Healthcare', icon: '🤖' },
+          { id: 'gym-trainer', name: 'AI Gym Trainer', icon: '🏋️' },
           { id: 'recommendations', name: 'Health Tips', icon: '💡' },
           { id: 'videocall', name: 'Video Call', icon: '📹' },
           { id: 'records', name: 'My Records', icon: '📋' },
@@ -501,6 +509,9 @@ export default function PatientDashboard({ user }) {
               {[
                 { id: 'vitals', name: 'Monitor Vitals', icon: '❤️', desc: 'Track your vital signs' },
                 { id: 'symptoms', name: 'Check Symptoms', icon: '🔍', desc: 'AI symptom analysis' },
+                { id: 'mental-health', name: 'Mental Health', icon: '🧠', desc: 'AI mood & stress detection' },
+                { id: 'ai-healthcare', name: 'AI Healthcare', icon: '🤖', desc: 'Personalized recommendations' },
+                { id: 'gym-trainer', name: 'AI Gym Trainer', icon: '🏋️', desc: 'Personal fitness coach' },
                 { id: 'chat', name: 'Ask AI Doctor', icon: '💬', desc: 'Get medical guidance' },
                 { id: 'videocall', name: 'Video Call Doctor', icon: '📹', desc: 'Connect with a doctor' },
                 { id: 'upload', name: 'Upload Record', icon: '📤', desc: 'Add medical documents' }
@@ -567,6 +578,26 @@ export default function PatientDashboard({ user }) {
       {/* Image Analysis */}
       {activeTab === 'imaging' && (
         <ImageAnalysis />
+      )}
+
+      {/* Mental Health Monitor */}
+      {activeTab === 'mental-health' && (
+        <MentalHealthMonitor />
+      )}
+
+      {/* Relaxation Exercises */}
+      {activeTab === 'relaxation' && (
+        <RelaxationExercises />
+      )}
+
+      {/* AI Healthcare Recommendations */}
+      {activeTab === 'ai-healthcare' && (
+        <PersonalizedRecommendations />
+      )}
+
+      {/* AI Gym Trainer */}
+      {activeTab === 'gym-trainer' && (
+        <AIGymTrainer />
       )}
 
       {/* Health Recommendations */}

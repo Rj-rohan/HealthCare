@@ -10,7 +10,7 @@ export default function AIGymTrainer() {
   const [workoutTime, setWorkoutTime] = useState(0)
   const [aiCoaching, setAiCoaching] = useState([])
   const [personalBest, setPersonalBest] = useState({ pushup: 0, squat: 0, situp: 0 })
-  const [streak, setStreak] = useState(7)
+  const [streak] = useState(7)
   
   const videoRef = useRef(null)
   const canvasRef = useRef(null)

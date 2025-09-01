@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import io from 'socket.io-client'
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function VideoCall({ callId, onEndCall, userRole, isInitiator }) {
   // Add test mode for localhost debugging
   const isLocalTest = window.location.hostname === 'localhost'
   const [isVideoOn, setIsVideoOn] = useState(true)
   const [isAudioOn, setIsAudioOn] = useState(true)
-  const [testMode, setTestMode] = useState(false)
+  const [_testMode] = useState(false)
   const [callDuration, setCallDuration] = useState(0)
   const localVideoRef = useRef(null)
   const remoteVideoRef = useRef(null)
@@ -137,7 +138,6 @@ export default function VideoCall({ callId, onEndCall, userRole, isInitiator }) 
         console.warn('Camera access failed, trying screen share for testing:', err)
         // For same device testing - use screen share
         if (userRole === 'doctor') {
-          setTestMode(true)
           return await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
         }
         // Fallback to audio-only for patient

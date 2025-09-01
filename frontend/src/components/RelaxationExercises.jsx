@@ -153,82 +153,58 @@ export default function RelaxationExercises() {
     }
   }
 
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(20px)',
-    padding: 'clamp(16px, 4vw, 24px)',
-    borderRadius: 'clamp(12px, 3vw, 20px)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    marginBottom: 'clamp(16px, 4vw, 24px)'
-  }
-
   return (
-    <div style={{
+    <div className="animate-fade-in" style={{
       padding: 'clamp(16px, 4vw, 32px)',
       maxWidth: '1200px',
       margin: '0 auto',
       minHeight: '100vh'
     }}>
       {/* Header with AI Stats */}
-      <div style={cardStyle}>
-        <h2 style={{
+      <div className="glass-card card-hover animate-fade-in-scale" style={{ marginBottom: '2rem' }}>
+        <h2 className="brand-title gradient-text-brand" style={{
           fontSize: 'clamp(24px, 6vw, 32px)',
           fontWeight: '800',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
           marginBottom: '16px',
           textAlign: 'center'
         }}>
           🧘 AI Relaxation Coach
         </h2>
         
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 'clamp(12px, 3vw, 20px)',
-          marginBottom: '20px'
-        }}>
-          <div style={{
+        <div className="grid-responsive" style={{ marginBottom: '20px' }}>
+          <div className="stat-card card-hover" style={{
             background: 'rgba(76, 175, 80, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>📊</div>
-            <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#4caf50', fontWeight: '600' }}>
+            <div className="stat-number" style={{ color: '#4caf50' }}>📊</div>
+            <div className="stat-label" style={{ color: '#4caf50' }}>
               Stress Level: {stressLevel}/10
             </div>
           </div>
           
-          <div style={{
+          <div className="stat-card card-hover" style={{
             background: 'rgba(33, 150, 243, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>🏆</div>
-            <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#2196f3', fontWeight: '600' }}>
+            <div className="stat-number" style={{ color: '#2196f3' }}>🏆</div>
+            <div className="stat-label" style={{ color: '#2196f3' }}>
               Sessions: {completedSessions}
             </div>
           </div>
           
-          <div style={{
+          <div className="stat-card card-hover" style={{
             background: 'rgba(156, 39, 176, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>🤖</div>
-            <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#9c27b0', fontWeight: '600' }}>
+            <div className="stat-number" style={{ color: '#9c27b0' }}>🤖</div>
+            <div className="stat-label" style={{ color: '#9c27b0' }}>
               AI Active
             </div>
           </div>
         </div>
         
         {/* AI Recommendations */}
-        <div style={{
+        <div className="glass-card" style={{
           background: 'rgba(255, 193, 7, 0.1)',
           padding: '16px',
           borderRadius: '12px'
@@ -249,16 +225,10 @@ export default function RelaxationExercises() {
       </div>
 
       {!activeExercise ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 'clamp(16px, 4vw, 24px)'
-        }}>
+        <div className="grid-responsive">
           {exercises.map(exercise => (
-            <div key={exercise.id} style={{
-              ...cardStyle,
+            <div key={exercise.id} className="glass-card card-hover animate-fade-in-scale" style={{
               background: 'linear-gradient(135deg, rgba(103, 58, 183, 0.1) 0%, rgba(63, 81, 181, 0.1) 100%)',
-              transition: 'all 0.3s ease',
               cursor: 'pointer'
             }}>
               <h3 style={{
@@ -279,7 +249,7 @@ export default function RelaxationExercises() {
                 {exercise.description}
               </p>
               
-              <div style={{
+              <div className="glass-card" style={{
                 background: 'rgba(255, 255, 255, 0.3)',
                 padding: '12px',
                 borderRadius: '8px',
@@ -300,17 +270,10 @@ export default function RelaxationExercises() {
               
               <button
                 onClick={() => startExercise(exercise)}
+                className="btn-gradient"
                 style={{
                   width: '100%',
-                  padding: 'clamp(10px, 2.5vw, 14px) clamp(16px, 4vw, 24px)',
-                  background: 'linear-gradient(135deg, #673ab7 0%, #5e35b1 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: 'clamp(14px, 3.5vw, 16px)',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
+                  background: 'linear-gradient(135deg, #673ab7 0%, #5e35b1 100%)'
                 }}
               >
                 🚀 Start AI Session
@@ -319,8 +282,7 @@ export default function RelaxationExercises() {
           ))}
         </div>
       ) : (
-        <div style={{
-          ...cardStyle,
+        <div className="glass-card card-hover animate-fade-in-scale" style={{
           background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(233, 30, 99, 0.1) 100%)',
           textAlign: 'center'
         }}>
@@ -333,9 +295,8 @@ export default function RelaxationExercises() {
             {activeExercise.name}
           </h3>
           
-          <div style={{
+          <div className="stat-number" style={{
             fontSize: 'clamp(36px, 10vw, 56px)',
-            fontWeight: 'bold',
             color: '#7b1fa2',
             marginBottom: '24px'
           }}>
@@ -360,7 +321,7 @@ export default function RelaxationExercises() {
             </div>
           )}
           
-          <div style={{
+          <div className="glass-card" style={{
             background: 'rgba(255, 255, 255, 0.3)',
             padding: 'clamp(16px, 4vw, 20px)',
             borderRadius: '12px',
@@ -397,17 +358,11 @@ export default function RelaxationExercises() {
           }}>
             <button
               onClick={() => setIsActive(!isActive)}
+              className="btn-gradient"
               style={{
-                padding: 'clamp(10px, 2.5vw, 12px) clamp(20px, 5vw, 24px)',
                 background: isActive ? 
                   'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)' : 
                   'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: 'clamp(14px, 3.5vw, 16px)',
-                fontWeight: '600',
-                cursor: 'pointer',
                 minWidth: '100px'
               }}
             >
@@ -416,15 +371,9 @@ export default function RelaxationExercises() {
             
             <button
               onClick={stopExercise}
+              className="btn-gradient"
               style={{
-                padding: 'clamp(10px, 2.5vw, 12px) clamp(20px, 5vw, 24px)',
                 background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: 'clamp(14px, 3.5vw, 16px)',
-                fontWeight: '600',
-                cursor: 'pointer',
                 minWidth: '100px'
               }}
             >

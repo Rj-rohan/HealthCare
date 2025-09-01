@@ -76,41 +76,17 @@ export default function PersonalizedRecommendations() {
     }
   }
 
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(20px)',
-    padding: 'clamp(16px, 4vw, 24px)',
-    borderRadius: 'clamp(12px, 3vw, 20px)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    marginBottom: 'clamp(16px, 4vw, 24px)'
-  }
-
-  const inputStyle = {
-    width: '100%',
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    borderRadius: '8px',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    outline: 'none',
-    background: 'rgba(255, 255, 255, 0.8)',
-    transition: 'all 0.3s ease'
-  }
-
   return (
-    <div style={{
+    <div className="animate-fade-in" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #f59e0b 100%)',
       padding: 'clamp(16px, 4vw, 32px)'
     }}>
       {/* Header */}
-      <div style={cardStyle}>
-        <h1 style={{
+      <div className="glass-card card-hover animate-fade-in-scale" style={{ marginBottom: '2rem' }}>
+        <h1 className="brand-title gradient-text-brand" style={{
           fontSize: 'clamp(24px, 6vw, 36px)',
           fontWeight: '800',
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
           margin: 0,
           marginBottom: '8px',
           textAlign: 'center'
@@ -127,57 +103,42 @@ export default function PersonalizedRecommendations() {
         </p>
         
         {/* Health Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: 'clamp(12px, 3vw, 20px)',
-          marginTop: '20px'
-        }}>
-          <div style={{
+        <div className="grid-responsive" style={{ marginTop: '20px' }}>
+          <div className="stat-card card-hover" style={{
             background: 'rgba(34, 197, 94, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>💚</div>
-            <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#16a34a', fontWeight: '600' }}>
+            <div className="stat-number" style={{ color: '#16a34a' }}>💚</div>
+            <div className="stat-label" style={{ color: '#16a34a' }}>
               Health Score: {healthScore}%
             </div>
           </div>
           
-          <div style={{
+          <div className="stat-card card-hover" style={{
             background: 'rgba(239, 68, 68, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>⚠️</div>
-            <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#dc2626', fontWeight: '600' }}>
+            <div className="stat-number" style={{ color: '#dc2626' }}>⚠️</div>
+            <div className="stat-label" style={{ color: '#dc2626' }}>
               Risk Score: {riskScore}%
             </div>
           </div>
           
-          <div style={{
+          <div className="stat-card card-hover" style={{
             background: 'rgba(59, 130, 246, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>🧠</div>
-            <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#2563eb', fontWeight: '600' }}>
+            <div className="stat-number" style={{ color: '#2563eb' }}>🧠</div>
+            <div className="stat-label" style={{ color: '#2563eb' }}>
               AI Analysis
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: 'clamp(20px, 5vw, 32px)'
-      }}>
+      <div className="grid-2">
         {/* Profile Form */}
-        <div style={cardStyle}>
+        <div className="glass-card card-hover animate-fade-in-scale">
           <h2 style={{
             fontSize: 'clamp(20px, 5vw, 24px)',
             fontWeight: '700',
@@ -188,12 +149,7 @@ export default function PersonalizedRecommendations() {
           </h2>
           
           <form onSubmit={handleSubmit}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: '16px',
-              marginBottom: '16px'
-            }}>
+            <div className="grid-2" style={{ marginBottom: '16px' }}>
               <div>
                 <label style={{
                   display: 'block',
@@ -208,7 +164,7 @@ export default function PersonalizedRecommendations() {
                   type="number"
                   value={profile.age}
                   onChange={(e) => setProfile({...profile, age: e.target.value})}
-                  style={inputStyle}
+                  className="input-enhanced"
                   placeholder="Enter age"
                 />
               </div>
@@ -226,7 +182,7 @@ export default function PersonalizedRecommendations() {
                 <select
                   value={profile.gender}
                   onChange={(e) => setProfile({...profile, gender: e.target.value})}
-                  style={inputStyle}
+                  className="input-enhanced"
                 >
                   <option value="">Select</option>
                   <option value="male">Male</option>
@@ -236,12 +192,7 @@ export default function PersonalizedRecommendations() {
               </div>
             </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: '16px',
-              marginBottom: '16px'
-            }}>
+            <div className="grid-2" style={{ marginBottom: '16px' }}>
               <div>
                 <label style={{
                   display: 'block',
@@ -256,7 +207,7 @@ export default function PersonalizedRecommendations() {
                   type="number"
                   value={profile.weight}
                   onChange={(e) => setProfile({...profile, weight: e.target.value})}
-                  style={inputStyle}
+                  className="input-enhanced"
                   placeholder="Weight"
                 />
               </div>
@@ -275,7 +226,7 @@ export default function PersonalizedRecommendations() {
                   type="number"
                   value={profile.height}
                   onChange={(e) => setProfile({...profile, height: e.target.value})}
-                  style={inputStyle}
+                  className="input-enhanced"
                   placeholder="Height"
                 />
               </div>
@@ -294,7 +245,7 @@ export default function PersonalizedRecommendations() {
               <select
                 value={profile.activityLevel}
                 onChange={(e) => setProfile({...profile, activityLevel: e.target.value})}
-                style={inputStyle}
+                className="input-enhanced"
               >
                 <option value="sedentary">Sedentary</option>
                 <option value="light">Light Activity</option>
@@ -317,7 +268,8 @@ export default function PersonalizedRecommendations() {
               <textarea
                 value={profile.medicalHistory}
                 onChange={(e) => setProfile({...profile, medicalHistory: e.target.value})}
-                style={{...inputStyle, height: '80px', resize: 'vertical'}}
+                className="input-enhanced"
+                style={{ height: '80px', resize: 'vertical' }}
                 placeholder="Conditions, allergies, surgeries..."
               />
             </div>
@@ -335,7 +287,8 @@ export default function PersonalizedRecommendations() {
               <textarea
                 value={profile.currentSymptoms}
                 onChange={(e) => setProfile({...profile, currentSymptoms: e.target.value})}
-                style={{...inputStyle, height: '80px', resize: 'vertical'}}
+                className="input-enhanced"
+                style={{ height: '80px', resize: 'vertical' }}
                 placeholder="Current symptoms or concerns..."
               />
             </div>
@@ -343,19 +296,14 @@ export default function PersonalizedRecommendations() {
             <button
               type="submit"
               disabled={loading}
+              className="btn-gradient"
               style={{
                 width: '100%',
                 padding: 'clamp(12px, 3vw, 16px)',
                 background: loading ?
                   'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' :
                   'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: 'clamp(14px, 3.5vw, 16px)',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease'
+                cursor: loading ? 'not-allowed' : 'pointer'
               }}
             >
               {loading ? '🤖 AI Analyzing...' : '🚀 Get AI Recommendations'}
@@ -368,7 +316,7 @@ export default function PersonalizedRecommendations() {
           {recommendations ? (
             <div>
               {/* AI Insights */}
-              <div style={cardStyle}>
+              <div className="glass-card card-hover animate-fade-in-scale">
                 <h3 style={{
                   fontSize: 'clamp(18px, 4.5vw, 20px)',
                   fontWeight: '700',
@@ -392,7 +340,7 @@ export default function PersonalizedRecommendations() {
               </div>
 
               {/* Treatment Recommendations */}
-              <div style={cardStyle}>
+              <div className="glass-card card-hover animate-fade-in-scale">
                 <h3 style={{
                   fontSize: 'clamp(18px, 4.5vw, 20px)',
                   fontWeight: '700',
@@ -412,7 +360,7 @@ export default function PersonalizedRecommendations() {
               </div>
 
               {/* Diet Recommendations */}
-              <div style={cardStyle}>
+              <div className="glass-card card-hover animate-fade-in-scale">
                 <h3 style={{
                   fontSize: 'clamp(18px, 4.5vw, 20px)',
                   fontWeight: '700',
@@ -432,7 +380,7 @@ export default function PersonalizedRecommendations() {
               </div>
 
               {/* Exercise Recommendations */}
-              <div style={cardStyle}>
+              <div className="glass-card card-hover animate-fade-in-scale">
                 <h3 style={{
                   fontSize: 'clamp(18px, 4.5vw, 20px)',
                   fontWeight: '700',
@@ -452,7 +400,7 @@ export default function PersonalizedRecommendations() {
               </div>
 
               {/* Risk Assessment */}
-              <div style={cardStyle}>
+              <div className="glass-card card-hover animate-fade-in-scale">
                 <h3 style={{
                   fontSize: 'clamp(18px, 4.5vw, 20px)',
                   fontWeight: '700',
@@ -472,12 +420,16 @@ export default function PersonalizedRecommendations() {
               </div>
             </div>
           ) : (
-            <div style={{
-              ...cardStyle,
+            <div className="glass-card card-hover animate-fade-in-scale" style={{
               textAlign: 'center',
               padding: 'clamp(32px, 8vw, 48px) clamp(16px, 4vw, 24px)'
             }}>
-              <div style={{ fontSize: 'clamp(48px, 12vw, 64px)', marginBottom: '16px' }}>🤖</div>
+              <div className="stat-number" style={{ 
+                fontSize: 'clamp(48px, 12vw, 64px)', 
+                marginBottom: '16px' 
+              }}>
+                🤖
+              </div>
               <h3 style={{
                 fontSize: 'clamp(18px, 4.5vw, 20px)',
                 fontWeight: '700',

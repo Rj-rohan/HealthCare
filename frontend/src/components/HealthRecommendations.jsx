@@ -115,50 +115,45 @@ export default function HealthRecommendations() {
     }
   }
 
-  const cardStyle = {
-    backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #f3f4f6',
-    transition: 'all 0.3s ease'
-  }
-
   return (
-    <div style={{
+    <div className="animate-fade-in" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
       padding: '32px'
     }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '8px' }}>Health Recommendations</h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>Personalized health tips and recommendations for better wellness</p>
+        <h1 className="brand-title gradient-text-brand" style={{ 
+          fontSize: '36px', 
+          fontWeight: 'bold', 
+          margin: 0, 
+          marginBottom: '8px' 
+        }}>
+          💡 Health Recommendations
+        </h1>
+        <p style={{ color: '#6b7280', margin: 0 }}>
+          Personalized health tips and recommendations for better wellness
+        </p>
       </div>
 
       {/* Category Filter */}
-      <div style={{
-        ...cardStyle,
+      <div className="glass-card card-hover animate-fade-in-scale" style={{
         marginBottom: '32px',
         padding: '20px'
       }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '16px' }}>Filter by Category</h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '12px'
-        }}>
+        <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '16px' }}>
+          Filter by Category
+        </h2>
+        <div className="grid-responsive" style={{ gap: '12px' }}>
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
+              className="btn-outline"
               style={{
                 padding: '12px 16px',
                 border: selectedCategory === category.id ? '2px solid #059669' : '1px solid #d1d5db',
-                borderRadius: '8px',
                 backgroundColor: selectedCategory === category.id ? '#dcfce7' : 'white',
                 color: selectedCategory === category.id ? '#059669' : '#374151',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -177,28 +172,29 @@ export default function HealthRecommendations() {
       {/* Recommendations Grid */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <div style={{
+          <div className="loading-dots" style={{
             width: '48px',
             height: '48px',
-            border: '4px solid #e5e7eb',
-            borderTop: '4px solid #059669',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
             margin: '0 auto 16px'
-          }}></div>
+          }}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
           <p style={{ fontSize: '16px', color: '#6b7280', margin: 0 }}>Loading recommendations...</p>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: '24px'
-        }}>
+        <div className="grid-responsive">
           {recommendations.map((rec) => {
             const priorityStyle = getPriorityColor(rec.priority)
             return (
-              <div key={rec.id} style={cardStyle}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div key={rec.id} className="glass-card card-hover animate-fade-in-scale">
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start', 
+                  marginBottom: '16px' 
+                }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '24px' }}>
                       {categories.find(cat => cat.id === rec.category)?.icon}
@@ -207,11 +203,7 @@ export default function HealthRecommendations() {
                       {rec.title}
                     </h3>
                   </div>
-                  <span style={{
-                    padding: '4px 12px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    borderRadius: '12px',
+                  <span className="status-indicator" style={{
                     backgroundColor: priorityStyle.bg,
                     color: priorityStyle.text,
                     border: `1px solid ${priorityStyle.border}`,
@@ -247,11 +239,9 @@ export default function HealthRecommendations() {
                   </ul>
                 </div>
 
-                <div style={{
+                <div className="glass-card" style={{
                   marginTop: '20px',
-                  padding: '12px',
                   backgroundColor: '#f9fafb',
-                  borderRadius: '8px',
                   borderLeft: '4px solid #059669'
                 }}>
                   <p style={{ fontSize: '12px', color: '#374151', margin: 0, fontStyle: 'italic' }}>
@@ -265,23 +255,25 @@ export default function HealthRecommendations() {
       )}
 
       {/* Health Score Card */}
-      <div style={{
-        ...cardStyle,
+      <div className="glass-card card-hover animate-fade-in-scale" style={{
         marginTop: '32px',
         background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
         color: 'white'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', margin: 0, marginBottom: '8px' }}>Your Health Score</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>Based on your activity and health habits</p>
+            <h3 style={{ fontSize: '20px', fontWeight: '600', margin: 0, marginBottom: '8px' }}>
+              Your Health Score
+            </h3>
+            <p style={{ margin: 0, opacity: 0.9 }}>
+              Based on your activity and health habits
+            </p>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{
+            <div className="gradient-border" style={{
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              border: '4px solid rgba(255, 255, 255, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

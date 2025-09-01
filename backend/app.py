@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -15,6 +16,12 @@ except ImportError:
 
 app = Flask(__name__)
 app.secret_key = 'healthcare_secret_key'
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
+app.config['SESSION_REFRESH_EACH_REQUEST'] = True
+
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
 
@@ -24,6 +31,24 @@ user_sessions = {}
 
 # Initialize database
 init_db()
+
+# Health check endpoint
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'version': '1.0.0'
+    }), 200
+
+# Debug endpoint for session info
+@app.route('/api/debug/session', methods=['GET'])
+def debug_session():
+    return jsonify({
+        'session_data': dict(session),
+        'cookies': dict(request.cookies),
+        'headers': dict(request.headers)
+    }), 200
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -73,6 +98,7 @@ def login():
     conn.close()
     
     if user:
+        session.permanent = True
         session['user_id'] = user[0]
         session['role'] = user[2]
         return jsonify({
@@ -795,5 +821,5 @@ def handle_ice_candidate(data):
     call_id = data['call_id']
     emit('ice_candidate', data, room=f"call_{call_id}", include_self=False)
 
-if __name__ == '__main__':
-    socketio.run(app, debug=True, port=8000, allow_unsafe_werkzeug=True)
+if __name__ == "__main__":
+    app.run(port=8000)

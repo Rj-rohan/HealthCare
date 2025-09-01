@@ -1,29 +1,78 @@
 import { useState, useEffect } from 'react'
-import Login from './components/Login'
+import './styles/global.css'
+import './styles/theme.css'
+import LoginNew from './components/Login/LoginNew'
+import MainApp from './components/MainApp'
 import PatientDashboard from './components/PatientDashboard'
 import DoctorDashboard from './components/DoctorDashboard'
 import AdminDashboard from './components/AdminDashboard'
+import { apiFetch } from './lib/api'
+import { HeartIcon, ArrowPathIcon, DevicePhoneMobileIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 
 function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState(null)
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Check if we have cached user data first
+    const cachedUser = localStorage.getItem('healthcare_user')
+    if (cachedUser) {
+      try {
+        const userData = JSON.parse(cachedUser)
+        setUser(userData)
+        console.log('Using cached user data:', userData)
+      } catch (err) {
+        console.error('Failed to parse cached user data:', err)
+        localStorage.removeItem('healthcare_user')
+      }
+    }
+    
+    // Then check with the server
     checkAuthStatus()
   }, [])
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/status', {
-        credentials: 'include'
+      setLoading(true)
+      setAuthError(null)
+      
+      const response = await apiFetch('/api/auth/status', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
+      
       if (response.ok) {
         const userData = await response.json()
-        setUser(userData.user)
+        if (userData.user) {
+          setUser(userData.user)
+          // Cache the user data
+          localStorage.setItem('healthcare_user', JSON.stringify(userData.user))
+          console.log('User authenticated:', userData.user)
+        } else {
+          setUser(null)
+          localStorage.removeItem('healthcare_user')
+          console.log('No user data in response')
+        }
+      } else if (response.status === 401) {
+        // User not authenticated, clear any stale data
+        setUser(null)
+        localStorage.removeItem('healthcare_user')
+        console.log('User not authenticated (401)')
+      } else {
+        console.error('Auth check failed with status:', response.status)
+        setAuthError('Authentication check failed')
+        setUser(null)
+        localStorage.removeItem('healthcare_user')
       }
     } catch (err) {
-      console.error('Auth check failed:', err)
+      console.error('Auth check error:', err)
+      setAuthError('Network error during authentication check')
+      setUser(null)
+      localStorage.removeItem('healthcare_user')
     } finally {
       setLoading(false)
     }
@@ -31,140 +80,97 @@ function App() {
 
   const handleLogin = (userData) => {
     setUser(userData)
+    setAuthError(null)
+    // Cache the user data
+    localStorage.setItem('healthcare_user', JSON.stringify(userData))
+    console.log('User logged in:', userData)
   }
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:8000/api/logout', {
+      const response = await apiFetch('/api/logout', {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
-      setUser(null)
+      
+      if (response.ok) {
+        console.log('User logged out successfully')
+      } else {
+        console.error('Logout failed:', response.status)
+      }
     } catch (err) {
       console.error('Logout error:', err)
+    } finally {
+      setUser(null)
+      setAuthError(null)
+      localStorage.removeItem('healthcare_user')
     }
   }
 
   const renderDashboard = () => {
+    if (!user) return null
+    
     switch (user.role) {
       case 'patient':
-        return <PatientDashboard user={user} onLogout={handleLogout} />
+        return <MainApp user={user} onLogout={handleLogout} />
       case 'doctor':
         return <DoctorDashboard user={user} onLogout={handleLogout} />
       case 'admin':
         return <AdminDashboard user={user} onLogout={handleLogout} />
       default:
-        return <Login onLogin={handleLogin} />
+        return <LoginNew onLogin={handleLogin} />
     }
   }
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        backgroundColor: '#f9fafb'
-      }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          border: '4px solid #e5e7eb',
-          borderTop: '4px solid #2563eb',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
+      <div className="loading-screen">
+        <div className="spinner-ring" />
+        <p style={{ marginTop: '1rem', color: '#6b7280' }}>Loading...</p>
+      </div>
+    )
+  }
+
+  if (authError) {
+    return (
+      <div className="auth-page centered-flex">
+        <div className="glass-card auth-panel animate-fade-in">
+          <div className="header-center">
+            <div className="brand-badge"><HeartIcon className="brand-mark" aria-hidden="true" /></div>
+            <h1 className="brand-title gradient-text-brand">HealthAI</h1>
+            <p className="subtitle-muted">Authentication Error</p>
+          </div>
+          <div className="error-banner">
+            {authError}
+          </div>
+          <button
+            onClick={checkAuthStatus}
+            className="btn btn-primary btn-block"
+          >
+            <ArrowPathIcon className="btn-icon" aria-hidden="true" /> Retry Authentication
+          </button>
+          <button
+            onClick={() => setAuthError(null)}
+            className="btn btn-secondary btn-block"
+            style={{ marginTop: '1rem' }}
+          >
+            <DevicePhoneMobileIcon className="btn-icon" aria-hidden="true" /> Login Again
+          </button>
+        </div>
       </div>
     )
   }
 
   if (!user) {
-    return <Login onLogin={handleLogin} />
+    return <LoginNew onLogin={handleLogin} />
   }
 
   return (
-    <div style={{ 
-      position: 'relative',
-      minHeight: '100vh'
-    }}>
-      {/* Enhanced Header */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-        padding: 'clamp(12px, 3vw, 20px)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: 'clamp(32px, 6vw, 40px)',
-            height: 'clamp(32px, 6vw, 40px)',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 'clamp(16px, 3vw, 20px)'
-          }}>
-            🏥
-          </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: 'clamp(18px, 4vw, 24px)',
-            fontWeight: '700',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
-            HealthAI
-          </h1>
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
-          <div style={{
-            padding: 'clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 16px)',
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            borderRadius: '20px',
-            color: 'white',
-            fontSize: 'clamp(12px, 2.5vw, 14px)',
-            fontWeight: '600',
-            textTransform: 'capitalize'
-          }}>
-            {user.role === 'patient' ? '👤' : user.role === 'doctor' ? '⚕️' : '👨💼'} {user.role}
-          </div>
-          
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 20px)',
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: 'clamp(12px, 2.5vw, 14px)',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-            }}
-          >
-            ↗ Logout
-          </button>
-        </div>
-      </div>
-      
-      <div style={{ paddingTop: 'clamp(70px, 15vw, 90px)' }}>
-        {renderDashboard()}
-      </div>
+    <div className="app-root">
+      {renderDashboard()}
     </div>
   )
 }

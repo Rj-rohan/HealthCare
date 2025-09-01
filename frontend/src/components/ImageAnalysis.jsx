@@ -44,40 +44,38 @@ export default function ImageAnalysis() {
     }, 3000)
   }
 
-  const cardStyle = {
-    backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #f3f4f6'
-  }
-
   return (
-    <div style={{
+    <div className="animate-fade-in" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #fef7ff 0%, #f3e8ff 100%)',
       padding: '32px'
     }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '8px' }}>Medical Image Analysis</h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>Upload medical images for AI-powered analysis and insights</p>
+        <h1 className="brand-title gradient-text-brand" style={{ 
+          fontSize: '36px', 
+          fontWeight: 'bold', 
+          margin: 0, 
+          marginBottom: '8px' 
+        }}>
+          🔬 Medical Image Analysis
+        </h1>
+        <p style={{ color: '#6b7280', margin: 0 }}>
+          Upload medical images for AI-powered analysis and insights
+        </p>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '32px'
-      }}>
+      <div className="grid-2">
         {/* Upload Section */}
-        <div style={cardStyle}>
+        <div className="glass-card card-hover animate-fade-in-scale">
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
             <span style={{ fontSize: '24px', marginRight: '12px' }}>📷</span>
-            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>Upload Image</h2>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>
+              Upload Image
+            </h2>
           </div>
 
-          <div style={{
+          <div className="glass-card" style={{
             border: '2px dashed #d1d5db',
-            borderRadius: '12px',
             padding: '48px 24px',
             textAlign: 'center',
             marginBottom: '24px',
@@ -101,14 +99,9 @@ export default function ImageAnalysis() {
               </div>
             ) : (
               <div>
-                <div style={{
+                <div className="stat-card" style={{
                   width: '64px',
                   height: '64px',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   margin: '0 auto 16px',
                   fontSize: '24px'
                 }}>
@@ -135,18 +128,12 @@ export default function ImageAnalysis() {
           <div style={{ display: 'flex', gap: '12px' }}>
             <label
               htmlFor="file-upload"
+              className="btn-outline"
               style={{
                 flex: 1,
                 padding: '12px 24px',
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
                 textAlign: 'center',
-                transition: 'background-color 0.2s ease'
+                cursor: 'pointer'
               }}
             >
               Choose File
@@ -155,17 +142,13 @@ export default function ImageAnalysis() {
             <button
               onClick={analyzeImage}
               disabled={!selectedFile || loading}
+              className="btn-gradient"
               style={{
                 flex: 1,
-                padding: '12px 24px',
-                backgroundColor: !selectedFile || loading ? '#d1d5db' : '#7c3aed',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: !selectedFile || loading ? 'not-allowed' : 'pointer',
-                transition: 'background-color 0.2s ease'
+                background: !selectedFile || loading ? 
+                  'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
+                  'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                cursor: !selectedFile || loading ? 'not-allowed' : 'pointer'
               }}
             >
               {loading ? 'Analyzing...' : 'Analyze Image'}
@@ -173,7 +156,10 @@ export default function ImageAnalysis() {
           </div>
 
           {/* Supported Types */}
-          <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+          <div className="glass-card" style={{ 
+            marginTop: '24px', 
+            backgroundColor: '#f9fafb' 
+          }}>
             <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#374151', margin: 0, marginBottom: '8px' }}>
               Supported Analysis Types:
             </h3>
@@ -187,53 +173,71 @@ export default function ImageAnalysis() {
         </div>
 
         {/* Results Section */}
-        <div style={cardStyle}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '24px' }}>Analysis Results</h2>
+        <div className="glass-card card-hover animate-fade-in-scale">
+          <h2 style={{ 
+            fontSize: '20px', 
+            fontWeight: '600', 
+            color: '#111827', 
+            margin: 0, 
+            marginBottom: '24px' 
+          }}>
+            Analysis Results
+          </h2>
           
           {!selectedFile ? (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <div style={{
+              <div className="stat-card" style={{
                 width: '80px',
                 height: '80px',
-                backgroundColor: '#f3e8ff',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
                 margin: '0 auto 16px',
                 fontSize: '32px'
               }}>
                 🔬
               </div>
-              <p style={{ fontSize: '18px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>Upload an image to start analysis</p>
-              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>AI will analyze your medical image</p>
+              <p style={{ fontSize: '18px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>
+                Upload an image to start analysis
+              </p>
+              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
+                AI will analyze your medical image
+              </p>
             </div>
           ) : loading ? (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <div style={{
+              <div className="loading-dots" style={{
                 width: '48px',
                 height: '48px',
-                border: '4px solid #e5e7eb',
-                borderTop: '4px solid #7c3aed',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
                 margin: '0 auto 16px'
-              }}></div>
-              <p style={{ fontSize: '16px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>Analyzing your image...</p>
-              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>This may take a few moments</p>
+              }}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p style={{ fontSize: '16px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>
+                Analyzing your image...
+              </p>
+              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
+                This may take a few moments
+              </p>
             </div>
           ) : analysis ? (
             <div>
               {/* Confidence Score */}
-              <div style={{
-                padding: '16px',
+              <div className="glass-card" style={{
                 backgroundColor: '#f0f9ff',
-                borderRadius: '8px',
                 marginBottom: '24px'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>Analysis Confidence</span>
-                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#0369a1' }}>{analysis.confidence}%</span>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  marginBottom: '8px' 
+                }}>
+                  <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
+                    Analysis Confidence
+                  </span>
+                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#0369a1' }}>
+                    {analysis.confidence}%
+                  </span>
                 </div>
                 <div style={{
                   width: '100%',
@@ -302,8 +306,7 @@ export default function ImageAnalysis() {
       </div>
 
       {/* Disclaimer */}
-      <div style={{
-        ...cardStyle,
+      <div className="glass-card card-hover" style={{
         marginTop: '32px',
         backgroundColor: '#fef3c7',
         border: '1px solid #f59e0b'

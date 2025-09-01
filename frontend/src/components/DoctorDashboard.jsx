@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import io from 'socket.io-client'
 import '../styles/global.css'
 import VideoCall from './VideoCall'
+import { apiFetch } from '../lib/api'
 
 export default function DoctorDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('records')
   const [records, setRecords] = useState([])
   const [patients, setPatients] = useState([])
-  const [selectedPatient, setSelectedPatient] = useState('')
+  const [_selectedPatient] = useState('')
   const [prescription, setPrescription] = useState({
     patient_id: '',
     medication: '',
@@ -34,7 +35,7 @@ export default function DoctorDashboard({ user }) {
   }, [])
 
   const initializeSocket = () => {
-    const newSocket = io('http://localhost:8000', {
+    const newSocket = io({
       withCredentials: true
     })
     
@@ -47,7 +48,7 @@ export default function DoctorDashboard({ user }) {
 
   const fetchRecords = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/doctor/records', {
+      const response = await apiFetch('/api/doctor/records', {
         credentials: 'include'
       })
       const data = await response.json()
@@ -59,7 +60,7 @@ export default function DoctorDashboard({ user }) {
 
   const fetchPatients = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/doctor/patients', {
+      const response = await apiFetch('/api/doctor/patients', {
         credentials: 'include'
       })
       const data = await response.json()
@@ -71,7 +72,7 @@ export default function DoctorDashboard({ user }) {
 
   const verifyRecord = async (recordId) => {
     try {
-      const response = await fetch('http://localhost:8000/api/doctor/verify-record', {
+      const response = await apiFetch('/api/doctor/verify-record', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -88,7 +89,7 @@ export default function DoctorDashboard({ user }) {
   const addPrescription = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:8000/api/doctor/prescriptions', {
+      const response = await apiFetch('/api/doctor/prescriptions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -105,7 +106,7 @@ export default function DoctorDashboard({ user }) {
 
   const respondToCall = async (callId, response) => {
     try {
-      await fetch('http://localhost:8000/api/call/respond', {
+      await apiFetch('/api/call/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -131,7 +132,7 @@ export default function DoctorDashboard({ user }) {
   const endVideoCall = async () => {
     try {
       if (activeCall) {
-        await fetch('http://localhost:8000/api/call/end', {
+        await apiFetch('/api/call/end', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',

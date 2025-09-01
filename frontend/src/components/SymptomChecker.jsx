@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 export default function SymptomChecker() {
   const [symptoms, setSymptoms] = useState([])
@@ -32,13 +33,13 @@ export default function SymptomChecker() {
     setHasAnalyzed(true)
     
     setTimeout(() => {
-      const mockResults = generateMockResults(symptoms, age, gender)
+      const mockResults = generateMockResults()
       setResults(mockResults)
       setLoading(false)
     }, 2000)
   }
 
-  const generateMockResults = (symptoms, age, gender) => {
+  const generateMockResults = () => {
     const conditions = [
       {
         disease: 'Common Cold',
@@ -75,80 +76,73 @@ export default function SymptomChecker() {
       }
     ]
     
-    return conditions.filter(c => Math.random() > 0.3).slice(0, 3)
-  }
-
-  const cardStyle = {
-    backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #f3f4f6'
-  }
-
-  const inputStyle = {
-    width: '100%',
-    padding: '12px 16px',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    fontSize: '16px',
-    outline: 'none',
-    transition: 'border-color 0.2s ease'
-  }
-
-  const buttonStyle = {
-    padding: '12px 24px',
-    backgroundColor: '#2563eb',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s ease'
+    return conditions.filter(() => Math.random() > 0.3).slice(0, 3)
   }
 
   return (
-    <div style={{
+    <div className="animate-fade-in" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #dcfce7 0%, #dbeafe 100%)',
       padding: '32px'
     }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '8px' }}>AI Symptom Checker</h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>Get instant AI-powered health insights based on your symptoms</p>
+        <h1 className="brand-title gradient-text-brand" style={{ 
+          fontSize: '36px', 
+          fontWeight: 'bold', 
+          margin: 0, 
+          marginBottom: '8px' 
+        }}>
+          AI Symptom Checker
+        </h1>
+        <p style={{ color: '#6b7280', margin: 0 }}>
+          Get instant AI-powered health insights based on your symptoms
+        </p>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '32px'
-      }}>
+      <div className="grid-2">
         {/* Input Section */}
-        <div style={cardStyle}>
+        <div className="glass-card card-hover animate-fade-in-scale">
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-            <span style={{ fontSize: '24px', marginRight: '12px' }}>🔍</span>
-            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>Enter Your Information</h2>
+            <span style={{ marginRight: '12px' }}><MagnifyingGlassIcon className="icon-24" aria-hidden="true" /></span>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>
+              Enter Your Information
+            </h2>
           </div>
           
           {/* Personal Info */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+          <div className="grid-2" style={{ marginBottom: '24px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Age</label>
+              <label style={{ 
+                display: 'block', 
+                fontSize: '14px', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: '8px' 
+              }}>
+                Age
+              </label>
               <input
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                style={inputStyle}
+                className="input-enhanced"
                 placeholder="Enter age"
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Gender</label>
+              <label style={{ 
+                display: 'block', 
+                fontSize: '14px', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: '8px' 
+              }}>
+                Gender
+              </label>
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                style={inputStyle}
+                className="input-enhanced"
               >
                 <option value="">Select gender</option>
                 <option value="male">Male</option>
@@ -160,20 +154,29 @@ export default function SymptomChecker() {
 
           {/* Symptom Input */}
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Add Symptom</label>
+            <label style={{ 
+              display: 'block', 
+              fontSize: '14px', 
+              fontWeight: '500', 
+              color: '#374151', 
+              marginBottom: '8px' 
+            }}>
+              Add Symptom
+            </label>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
                 value={currentSymptom}
                 onChange={(e) => setCurrentSymptom(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addSymptom(currentSymptom)}
-                style={{ ...inputStyle, flex: 1 }}
+                className="input-enhanced"
+                style={{ flex: 1 }}
                 placeholder="Type a symptom..."
               />
               <button
                 onClick={() => addSymptom(currentSymptom)}
+                className="btn-gradient"
                 style={{
-                  ...buttonStyle,
                   padding: '12px 16px',
                   fontSize: '20px'
                 }}
@@ -185,21 +188,23 @@ export default function SymptomChecker() {
 
           {/* Common Symptoms */}
           <div style={{ marginBottom: '24px' }}>
-            <p style={{ fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '12px' }}>Common Symptoms:</p>
+            <p style={{ 
+              fontSize: '14px', 
+              fontWeight: '500', 
+              color: '#374151', 
+              marginBottom: '12px' 
+            }}>
+              Common Symptoms:
+            </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {commonSymptoms.map((symptom) => (
                 <button
                   key={symptom}
                   onClick={() => addSymptom(symptom)}
+                  className="btn-outline"
                   style={{
                     padding: '6px 12px',
-                    fontSize: '14px',
-                    backgroundColor: '#f3f4f6',
-                    color: '#374151',
-                    border: 'none',
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s ease'
+                    fontSize: '14px'
                   }}
                 >
                   {symptom}
@@ -211,19 +216,24 @@ export default function SymptomChecker() {
           {/* Selected Symptoms */}
           {symptoms.length > 0 && (
             <div style={{ marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '12px' }}>Selected Symptoms:</p>
+              <p style={{ 
+                fontSize: '14px', 
+                fontWeight: '500', 
+                color: '#374151', 
+                marginBottom: '12px' 
+              }}>
+                Selected Symptoms:
+              </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {symptoms.map((symptom) => (
                   <span
                     key={symptom}
+                    className="status-indicator status-online"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       padding: '6px 12px',
-                      fontSize: '14px',
-                      backgroundColor: '#dbeafe',
-                      color: '#1e40af',
-                      borderRadius: '16px'
+                      fontSize: '14px'
                     }}
                   >
                     {symptom}
@@ -231,7 +241,7 @@ export default function SymptomChecker() {
                       onClick={() => removeSymptom(symptom)}
                       style={{
                         marginLeft: '8px',
-                        color: '#1e40af',
+                        color: 'inherit',
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
@@ -249,25 +259,25 @@ export default function SymptomChecker() {
           <button
             onClick={analyzeSymptoms}
             disabled={symptoms.length === 0 || loading}
+            className="btn-gradient"
             style={{
-              ...buttonStyle,
               width: '100%',
               padding: '16px',
-              background: symptoms.length === 0 || loading ? '#d1d5db' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              background: symptoms.length === 0 || loading ? 
+                'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
+                'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
               cursor: symptoms.length === 0 || loading ? 'not-allowed' : 'pointer'
             }}
           >
             {loading ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{
-                  width: '20px',
-                  height: '20px',
-                  border: '2px solid #ffffff',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                  marginRight: '8px'
-                }}></div>
+              <div className="loading-dots" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center' 
+              }}>
+                <span></span>
+                <span></span>
+                <span></span>
                 Analyzing Symptoms...
               </div>
             ) : (
@@ -277,69 +287,88 @@ export default function SymptomChecker() {
         </div>
 
         {/* Results Section */}
-        <div style={cardStyle}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '24px' }}>AI Analysis Results</h2>
+        <div className="glass-card card-hover animate-fade-in-scale">
+          <h2 style={{ 
+            fontSize: '20px', 
+            fontWeight: '600', 
+            color: '#111827', 
+            margin: 0, 
+            marginBottom: '24px' 
+          }}>
+            AI Analysis Results
+          </h2>
           
           {!hasAnalyzed ? (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <div style={{
+              <div className="stat-card" style={{
                 width: '80px',
                 height: '80px',
-                backgroundColor: '#dbeafe',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 16px',
-                fontSize: '32px'
+                margin: '0 auto 16px'
               }}>
-                🔍
+                <MagnifyingGlassIcon className="icon-24" aria-hidden="true" />
               </div>
-              <p style={{ fontSize: '18px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>Enter symptoms and click analyze</p>
-              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>Get instant AI-powered health insights</p>
+              <p style={{ fontSize: '18px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>
+                Enter symptoms and click analyze
+              </p>
+              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
+                Get instant AI-powered health insights
+              </p>
             </div>
           ) : loading ? (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <div style={{
+              <div className="loading-dots" style={{
                 width: '48px',
                 height: '48px',
-                border: '4px solid #e5e7eb',
-                borderTop: '4px solid #2563eb',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
                 margin: '0 auto 16px'
-              }}></div>
-              <p style={{ fontSize: '16px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>AI is analyzing your symptoms...</p>
-              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>This may take a few moments</p>
+              }}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p style={{ fontSize: '16px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>
+                AI is analyzing your symptoms...
+              </p>
+              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
+                This may take a few moments
+              </p>
             </div>
           ) : (
             <div>
               {results.map((result, index) => (
-                <div key={index} style={{
+                <div key={index} className="glass-card card-hover" style={{
                   border: '1px solid #e5e7eb',
-                  borderRadius: '12px',
-                  padding: '20px',
-                  marginBottom: '16px',
-                  transition: 'box-shadow 0.2s ease'
+                  marginBottom: '16px'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>{result.disease}</h3>
-                    <span style={{
-                      padding: '4px 12px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      borderRadius: '12px',
-                      backgroundColor: result.probability > 0.7 ? '#fee2e2' : 
-                                     result.probability > 0.5 ? '#fef3c7' : '#dcfce7',
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'flex-start', 
+                    marginBottom: '12px' 
+                  }}>
+                    <h3 style={{ 
+                      fontSize: '18px', 
+                      fontWeight: '600', 
+                      color: '#111827', 
+                      margin: 0 
+                    }}>
+                      {result.disease}
+                    </h3>
+                    <span className="status-indicator" style={{
+                      background: result.probability > 0.7 ? '#fee2e2' : 
+                                   result.probability > 0.5 ? '#fef3c7' : '#dcfce7',
                       color: result.probability > 0.7 ? '#991b1b' : 
                              result.probability > 0.5 ? '#92400e' : '#166534'
                     }}>
                       {Math.round(result.probability * 100)}% match
                     </span>
                   </div>
-                  <p style={{ color: '#6b7280', marginBottom: '16px', margin: 0 }}>{result.description}</p>
+                  <p style={{ color: '#6b7280', marginBottom: '16px', margin: 0 }}>
+                    {result.description}
+                  </p>
                   <div>
-                    <p style={{ fontWeight: '500', color: '#374151', marginBottom: '12px', margin: 0 }}>Recommendations:</p>
+                    <p style={{ fontWeight: '500', color: '#374151', marginBottom: '12px', margin: 0 }}>
+                      Recommendations:
+                    </p>
                     <ul style={{ margin: 0, paddingLeft: '0', listStyle: 'none' }}>
                       {result.recommendations.map((rec, i) => (
                         <li key={i} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '8px' }}>
@@ -359,10 +388,9 @@ export default function SymptomChecker() {
                   </div>
                 </div>
               ))}
-              <div style={{
+              <div className="glass-card" style={{
                 backgroundColor: '#fef3c7',
                 border: '1px solid #f59e0b',
-                borderRadius: '8px',
                 padding: '16px'
               }}>
                 <p style={{ fontSize: '14px', color: '#92400e', margin: 0 }}>

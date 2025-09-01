@@ -11,6 +11,7 @@ import MentalHealthMonitor from './MentalHealthMonitor'
 import RelaxationExercises from './RelaxationExercises'
 import PersonalizedRecommendations from './PersonalizedRecommendations'
 import AIGymTrainer from './AIGymTrainer'
+import { apiFetch } from '../lib/api'
 
 export default function PatientDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -34,7 +35,7 @@ export default function PatientDashboard({ user }) {
   // Video call states
   const [socket, setSocket] = useState(null)
   const [activeCall, setActiveCall] = useState(null)
-  const [incomingCall, setIncomingCall] = useState(null)
+  const [_incomingCall] = useState(null)
   const [callStatus, setCallStatus] = useState('idle') // idle, calling, in-call
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function PatientDashboard({ user }) {
   }, [])
 
   const initializeSocket = () => {
-    const newSocket = io('http://localhost:8000', {
+    const newSocket = io({
       withCredentials: true
     })
     
@@ -70,7 +71,7 @@ export default function PatientDashboard({ user }) {
 
   const fetchRecords = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/patient/records', {
+      const response = await apiFetch('/api/patient/records', {
         credentials: 'include'
       })
       const data = await response.json()
@@ -82,7 +83,7 @@ export default function PatientDashboard({ user }) {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/patient/appointments', {
+      const response = await apiFetch('/api/patient/appointments', {
         credentials: 'include'
       })
       const data = await response.json()
@@ -94,7 +95,7 @@ export default function PatientDashboard({ user }) {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/doctors')
+      const response = await apiFetch('/api/doctors')
       const data = await response.json()
       setDoctors(data)
     } catch (err) {
@@ -114,7 +115,7 @@ export default function PatientDashboard({ user }) {
         formData.append('file', newRecord.file)
       }
 
-      const response = await fetch('http://localhost:8000/api/patient/records', {
+      const response = await apiFetch('/api/patient/records', {
         method: 'POST',
         credentials: 'include',
         body: formData
@@ -133,7 +134,7 @@ export default function PatientDashboard({ user }) {
   const scheduleAppointment = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:8000/api/patient/appointments', {
+      const response = await apiFetch('/api/patient/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -152,7 +153,7 @@ export default function PatientDashboard({ user }) {
     try {
       setCallStatus('calling')
       
-      const response = await fetch('http://localhost:8000/api/call/initiate', {
+      const response = await apiFetch('/api/call/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -189,7 +190,7 @@ export default function PatientDashboard({ user }) {
   const endVideoCall = async () => {
     try {
       if (activeCall) {
-        await fetch('http://localhost:8000/api/call/end', {
+        await apiFetch('/api/call/end', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -511,7 +512,7 @@ export default function PatientDashboard({ user }) {
                 { id: 'symptoms', name: 'Check Symptoms', icon: '🔍', desc: 'AI symptom analysis' },
                 { id: 'mental-health', name: 'Mental Health', icon: '🧠', desc: 'AI mood & stress detection' },
                 { id: 'ai-healthcare', name: 'AI Healthcare', icon: '🤖', desc: 'Personalized recommendations' },
-                { id: 'gym-trainer', name: 'AI Gym Trainer', icon: '🏋️', desc: 'Personal fitness coach' },
+                { id: 'gym-trainer', name: 'AI Gym Trainer', icon: '🏋��', desc: 'Personal fitness coach' },
                 { id: 'chat', name: 'Ask AI Doctor', icon: '💬', desc: 'Get medical guidance' },
                 { id: 'videocall', name: 'Video Call Doctor', icon: '📹', desc: 'Connect with a doctor' },
                 { id: 'upload', name: 'Upload Record', icon: '📤', desc: 'Add medical documents' }

@@ -40,7 +40,7 @@ export default function MedicalChat() {
     }, 2000)
   }
 
-  const generateAIResponse = (userInput) => {
+  const generateAIResponse = () => {
     const responses = [
       "Based on your symptoms, I recommend consulting with a healthcare professional for a proper evaluation.",
       "That's a common concern. Here are some general recommendations: stay hydrated, get adequate rest, and monitor your symptoms.",
@@ -51,26 +51,27 @@ export default function MedicalChat() {
     return responses[Math.floor(Math.random() * responses.length)]
   }
 
-  const cardStyle = {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #f3f4f6'
-  }
-
   return (
-    <div style={{
+    <div className="animate-fade-in" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
       padding: '32px'
     }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '8px' }}>Medical Chat Assistant</h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>Chat with our AI medical assistant for health guidance</p>
+        <h1 className="brand-title gradient-text-brand" style={{ 
+          fontSize: '36px', 
+          fontWeight: 'bold', 
+          margin: 0, 
+          marginBottom: '8px' 
+        }}>
+          💬 Medical Chat Assistant
+        </h1>
+        <p style={{ color: '#6b7280', margin: 0 }}>
+          Chat with our AI medical assistant for health guidance
+        </p>
       </div>
 
-      <div style={{
-        ...cardStyle,
+      <div className="glass-card card-hover animate-fade-in-scale" style={{
         height: '600px',
         display: 'flex',
         flexDirection: 'column',
@@ -84,26 +85,26 @@ export default function MedicalChat() {
           display: 'flex',
           alignItems: 'center'
         }}>
-          <div style={{
+          <div className="stat-card" style={{
             width: '40px',
             height: '40px',
-            backgroundColor: '#dbeafe',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: '12px'
+            marginRight: '12px',
+            fontSize: '20px'
           }}>
-            <span style={{ fontSize: '20px' }}>🤖</span>
+            🤖
           </div>
           <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0 }}>AI Medical Assistant</h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>Online • Ready to help</p>
+            <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0 }}>
+              AI Medical Assistant
+            </h3>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+              Online • Ready to help
+            </p>
           </div>
         </div>
 
         {/* Messages Area */}
-        <div style={{
+        <div className="custom-scrollbar" style={{
           flex: 1,
           padding: '24px',
           overflowY: 'auto',
@@ -119,11 +120,11 @@ export default function MedicalChat() {
                 justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
               }}
             >
-              <div style={{
+              <div className="glass-card" style={{
                 maxWidth: '70%',
                 padding: '12px 16px',
                 borderRadius: '18px',
-                backgroundColor: message.sender === 'user' ? '#2563eb' : '#f3f4f6',
+                backgroundColor: message.sender === 'user' ? '#2563eb' : 'rgba(255, 255, 255, 0.8)',
                 color: message.sender === 'user' ? 'white' : '#111827'
               }}>
                 <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5' }}>{message.text}</p>
@@ -141,34 +142,16 @@ export default function MedicalChat() {
 
           {isTyping && (
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-              <div style={{
+              <div className="glass-card" style={{
                 padding: '12px 16px',
                 borderRadius: '18px',
-                backgroundColor: '#f3f4f6',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 color: '#111827'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    backgroundColor: '#6b7280',
-                    borderRadius: '50%',
-                    animation: 'pulse 1.5s ease-in-out infinite'
-                  }}></div>
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    backgroundColor: '#6b7280',
-                    borderRadius: '50%',
-                    animation: 'pulse 1.5s ease-in-out infinite 0.2s'
-                  }}></div>
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    backgroundColor: '#6b7280',
-                    borderRadius: '50%',
-                    animation: 'pulse 1.5s ease-in-out infinite 0.4s'
-                  }}></div>
+                <div className="loading-dots" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
               </div>
             </div>
@@ -188,29 +171,23 @@ export default function MedicalChat() {
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
             placeholder="Type your medical question..."
+            className="input-enhanced"
             style={{
               flex: 1,
-              padding: '12px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: '24px',
-              fontSize: '14px',
-              outline: 'none',
-              transition: 'border-color 0.2s ease'
+              borderRadius: '24px'
             }}
           />
           <button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isTyping}
+            className="btn-gradient"
             style={{
               padding: '12px 20px',
-              backgroundColor: !inputMessage.trim() || isTyping ? '#d1d5db' : '#2563eb',
-              color: 'white',
-              border: 'none',
               borderRadius: '24px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: !inputMessage.trim() || isTyping ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s ease'
+              background: !inputMessage.trim() || isTyping ? 
+                'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
+                'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              cursor: !inputMessage.trim() || isTyping ? 'not-allowed' : 'pointer'
             }}
           >
             Send
@@ -219,9 +196,7 @@ export default function MedicalChat() {
       </div>
 
       {/* Disclaimer */}
-      <div style={{
-        ...cardStyle,
-        padding: '20px',
+      <div className="glass-card card-hover" style={{
         marginTop: '24px',
         maxWidth: '800px',
         margin: '24px auto 0',

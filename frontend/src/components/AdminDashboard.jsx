@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import '../styles/global.css'
+import { apiFetch } from '../lib/api'
 
 export default function AdminDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [users, setUsers] = useState([])
   const [stats, setStats] = useState({})
-  const [loading, setLoading] = useState(false)
+  const [_loading] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -14,7 +15,7 @@ export default function AdminDashboard({ user }) {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/admin/users', {
+      const response = await apiFetch('/api/admin/users', {
         credentials: 'include'
       })
       const data = await response.json()
@@ -26,7 +27,7 @@ export default function AdminDashboard({ user }) {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/admin/stats', {
+      const response = await apiFetch('/api/admin/stats', {
         credentials: 'include'
       })
       const data = await response.json()

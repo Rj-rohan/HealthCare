@@ -3,15 +3,24 @@ export function getApiBase() {
   if (env && typeof env === 'string' && env.trim()) {
     return env.trim().replace(/\/$/, '')
   }
-  if (typeof window !== 'undefined' && window.location) {
-    return window.location.origin.replace(/\/$/, '')
-  }
-  return ''
+  // Always use backend server URL
+  return 'http://localhost:8000'
 }
 
 export async function apiFetch(path, options = {}) {
   const base = getApiBase()
   const safePath = path.startsWith('/') ? path : `/${path}`
   const url = `${base}${safePath}`
-  return fetch(url, options)
+  
+  // Ensure credentials are always included
+  const defaultOptions = {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers
+    },
+    ...options
+  }
+  
+  return fetch(url, defaultOptions)
 }

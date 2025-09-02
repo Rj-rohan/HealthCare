@@ -14,6 +14,10 @@ import PersonalizedRecommendations from './PersonalizedRecommendations'
 import MedicalChat from './MedicalChat'
 import ImageAnalysis from './ImageAnalysis'
 import HealthRecommendations from './HealthRecommendations'
+import Appointments from './Appointments'
+import Prescriptions from './Prescriptions'
+import Reports from './Reports'
+import Settings from './Settings'
 
 const MainApp = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -88,13 +92,13 @@ const MainApp = ({ user, onLogout }) => {
       case 'health-recommendations':
         return <HealthRecommendations />
       case 'appointments':
-        return <AppointmentsView user={user} />
+        return <Appointments user={user} />
       case 'prescriptions':
-        return <PrescriptionsView user={user} />
+        return <Prescriptions user={user} />
       case 'reports':
-        return <ReportsView user={user} />
+        return <Reports user={user} />
       case 'settings':
-        return <SettingsView user={user} />
+        return <Settings user={user} />
       default:
         return <PatientDashboard user={user} />
     }
@@ -136,35 +140,6 @@ const MainApp = ({ user, onLogout }) => {
   )
 }
 
-// Placeholder components for other views
-import { CalendarDaysIcon, ClipboardDocumentListIcon, DocumentChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 
-const AppointmentsView = () => (
-  <div className="glass-card animate-fade-in">
-    <h1 className="heading-1 heading-with-icon"><CalendarDaysIcon className="icon-24" aria-hidden="true" /> Appointments</h1>
-    <p>Appointment management coming soon...</p>
-  </div>
-)
-
-const PrescriptionsView = () => (
-  <div className="glass-card animate-fade-in">
-    <h1 className="heading-1 heading-with-icon"><ClipboardDocumentListIcon className="icon-24" aria-hidden="true" /> Prescriptions</h1>
-    <p>Prescription management coming soon...</p>
-  </div>
-)
-
-const ReportsView = () => (
-  <div className="glass-card animate-fade-in">
-    <h1 className="heading-1 heading-with-icon"><DocumentChartBarIcon className="icon-24" aria-hidden="true" /> Medical Reports</h1>
-    <p>Medical reports view coming soon...</p>
-  </div>
-)
-
-const SettingsView = () => (
-  <div className="glass-card animate-fade-in">
-    <h1 className="heading-1 heading-with-icon"><Cog6ToothIcon className="icon-24" aria-hidden="true" /> Settings</h1>
-    <p>Settings panel coming soon...</p>
-  </div>
-)
 
 export default MainApp

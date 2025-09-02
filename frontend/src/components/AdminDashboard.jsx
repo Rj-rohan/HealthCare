@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import '../styles/global.css'
 import { apiFetch } from '../lib/api'
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [users, setUsers] = useState([])
   const [stats, setStats] = useState({})
@@ -92,13 +92,17 @@ export default function AdminDashboard({ user }) {
         pointerEvents: 'none',
         zIndex: 0
       }}></div>
-      <div style={{ 
+      {/* Header with Logout */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 'clamp(32px, 8vw, 48px)',
         position: 'relative',
         zIndex: 1,
         animation: 'slideIn 0.8s ease-out'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 20px)', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 20px)' }}>
           <div style={{
             width: 'clamp(50px, 10vw, 70px)',
             height: 'clamp(50px, 10vw, 70px)',
@@ -113,39 +117,111 @@ export default function AdminDashboard({ user }) {
           }}>
             👨💼
           </div>
-          <h1 style={{ 
-            fontSize: 'clamp(28px, 7vw, 42px)', 
-            fontWeight: '800', 
-            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            margin: 0,
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
-            Welcome, {user.name}!
-          </h1>
+          <div>
+            <h1 style={{ 
+              fontSize: 'clamp(28px, 7vw, 42px)', 
+              fontWeight: '800', 
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              margin: 0,
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+            }}>
+              Welcome, {user.name}!
+            </h1>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '25px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+              marginTop: '8px'
+            }}>
+              <span style={{ fontSize: 'clamp(16px, 4vw, 20px)' }}>🏥</span>
+              <span style={{ 
+                color: '#374151', 
+                fontSize: 'clamp(14px, 3.5vw, 18px)',
+                fontWeight: '600'
+              }}>
+                System Administrator Dashboard
+              </span>
+            </div>
+          </div>
         </div>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
-          background: 'rgba(255, 255, 255, 0.2)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '25px',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
-        }}>
-          <span style={{ fontSize: 'clamp(16px, 4vw, 20px)' }}>🏥</span>
-          <span style={{ 
-            color: '#374151', 
-            fontSize: 'clamp(14px, 3.5vw, 18px)',
-            fontWeight: '600'
+        
+        {/* User Profile and Logout */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '0.75rem 1rem',
+            background: 'rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '2rem',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
           }}>
-            System Administrator Dashboard
-          </span>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: '600',
+              fontSize: '1.125rem'
+            }}>
+              {user?.name?.charAt(0) || 'A'}
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>
+                {user?.name || 'Admin'}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.8, textTransform: 'capitalize', color: '#6b7280' }}>
+                {user?.role}
+              </p>
+            </div>
+          </div>
+          
+          <button
+            onClick={onLogout}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1.5rem',
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.75rem',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.transform = 'translateY(-2px)'
+              e.target.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)'
+            }}
+            onMouseOut={(e) => {
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.3)'
+            }}
+          >
+            <span style={{ fontSize: '1rem' }}>🚪</span>
+            Logout
+          </button>
         </div>
       </div>
+
 
       {/* Navigation */}
       <div style={{ 

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { HandRaisedIcon, ChartBarIcon, HeartIcon, ArrowsUpDownIcon, BeakerIcon, FireIcon, CalendarDaysIcon, VideoCameraIcon, BoltIcon, DocumentChartBarIcon, ArrowDownTrayIcon, ClipboardDocumentListIcon, UserIcon } from '@heroicons/react/24/outline'
+import { apiFetch } from '../../lib/api'
 
 const PatientDashboard = ({ user }) => {
   const [vitals] = useState({
@@ -9,25 +10,57 @@ const PatientDashboard = ({ user }) => {
     temperature: 98.6
   })
 
-  const [appointments] = useState([
-    { id: 1, doctor: 'Dr. Sarah Smith', specialty: 'Cardiology', date: '2024-01-15', time: '10:00 AM', status: 'confirmed' },
-    { id: 2, doctor: 'Dr. Mike Johnson', specialty: 'General', date: '2024-01-20', time: '2:30 PM', status: 'pending' }
-  ])
+  const [appointments, setAppointments] = useState([])
+  const [prescriptions, setPrescriptions] = useState([])
+  const [recentReports, setRecentReports] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const [prescriptions] = useState([
-    { id: 1, medication: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', remaining: 15 },
-    { id: 2, medication: 'Metformin', dosage: '500mg', frequency: 'Twice daily', remaining: 8 }
-  ])
+  useEffect(() => {
+    fetchPatientData()
+  }, [])
 
-  const [recentReports] = useState([
-    { id: 1, type: 'Blood Test', date: '2024-01-10', status: 'completed', result: 'Normal' },
-    { id: 2, type: 'X-Ray Chest', date: '2024-01-08', status: 'completed', result: 'Clear' }
-  ])
+  const fetchPatientData = async () => {
+    try {
+      setLoading(true)
+      
+      // Fetch appointments
+      const appointmentsRes = await apiFetch('/api/patient/appointments', {
+        credentials: 'include'
+      })
+      if (appointmentsRes.ok) {
+        const appointmentsData = await appointmentsRes.json()
+        setAppointments(appointmentsData)
+      }
+
+      // Fetch medical records
+      const recordsRes = await apiFetch('/api/patient/records', {
+        credentials: 'include'
+      })
+      if (recordsRes.ok) {
+        const recordsData = await recordsRes.json()
+        setRecentReports(recordsData)
+      }
+
+      // Fetch prescriptions (using records endpoint for now)
+      const prescRes = await apiFetch('/api/patient/prescriptions', {
+        credentials: 'include'
+      })
+      if (prescRes.ok) {
+        const prescData = await prescRes.json()
+        setPrescriptions(prescData)
+      }
+      
+    } catch (error) {
+      console.error('Error fetching patient data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'confirmed': return 'var(--success)'
-      case 'pending': return 'var(--warning)'
+      case 'scheduled': return 'var(--success)'
+      case 'completed': return 'var(--primary)'
       case 'cancelled': return 'var(--error)'
       default: return 'var(--text-muted)'
     }
@@ -142,39 +175,51 @@ const PatientDashboard = ({ user }) => {
             <CalendarDaysIcon className="icon-24" aria-hidden="true" /> Upcoming Appointments
           </h2>
           <div className="glass-card">
-            {appointments.map(appointment => (
-              <div key={appointment.id} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '1rem',
-                borderBottom: '1px solid var(--border)',
-                marginBottom: '1rem'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div className="avatar-48-secondary">
-                    <UserIcon className="icon-20" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>
-                      {appointment.doctor}
-                    </h4>
-                    <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                      {appointment.specialty}
-                    </p>
-                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                      {appointment.date} at {appointment.time}
-                    </p>
-                  </div>
-                </div>
-                <div className="status-indicator" style={{
-                  background: getStatusColor(appointment.status) + '20',
-                  color: getStatusColor(appointment.status)
-                }}>
-                  {appointment.status}
-                </div>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                Loading appointments...
               </div>
-            ))}
+            ) : appointments.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                No appointments scheduled
+              </div>
+            ) : (
+              appointments.map(appointment => (
+                <div key={appointment.id} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '1rem',
+                  borderBottom: '1px solid var(--border)',
+                  marginBottom: '1rem'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className="avatar-48-secondary">
+                      <UserIcon className="icon-20" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>
+                        {appointment.doctor_name}
+                      </h4>
+                      <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                        {new Date(appointment.appointment_date).toLocaleDateString()} 
+                      </p>
+                      {appointment.notes && (
+                        <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                          {appointment.notes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="status-indicator" style={{
+                    background: getStatusColor(appointment.status) + '20',
+                    color: getStatusColor(appointment.status)
+                  }}>
+                    {appointment.status}
+                  </div>
+                </div>
+              ))
+            )}
             <button className="btn-gradient btn-block" style={{ marginTop: '1rem' }}>
               <CalendarDaysIcon className="btn-icon" aria-hidden="true" /> Schedule New Appointment
             </button>
@@ -239,33 +284,47 @@ const PatientDashboard = ({ user }) => {
             <DocumentChartBarIcon className="icon-24" aria-hidden="true" /> Recent Reports
           </h2>
           <div className="glass-card">
-            {recentReports.map(report => (
-              <div key={report.id} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '1rem',
-                borderBottom: '1px solid var(--border)',
-                marginBottom: '1rem'
-              }}>
-                <div>
-                  <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>
-                    {report.type}
-                  </h4>
-                  <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                    {report.date}
-                  </p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div className="status-indicator status-online" style={{ marginBottom: '0.25rem' }}>
-                    {report.result}
-                  </div>
-                  <button className="btn-outline btn-sm">
-                    <ArrowDownTrayIcon className="icon-18" aria-hidden="true" /> Download
-                  </button>
-                </div>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                Loading reports...
               </div>
-            ))}
+            ) : recentReports.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                No medical reports available
+              </div>
+            ) : (
+              recentReports.map(report => (
+                <div key={report.id} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '1rem',
+                  borderBottom: '1px solid var(--border)',
+                  marginBottom: '1rem'
+                }}>
+                  <div>
+                    <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>
+                      {report.title}
+                    </h4>
+                    <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                      {new Date(report.created_at).toLocaleDateString()}
+                    </p>
+                    <p style={{ margin: '0.25rem 0', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+                      {report.record_type}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className="status-indicator" style={{
+                      background: report.status === 'verified' ? 'var(--success)20' : 'var(--warning)20',
+                      color: report.status === 'verified' ? 'var(--success)' : 'var(--warning)',
+                      marginBottom: '0.25rem'
+                    }}>
+                      {report.status}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -274,30 +333,40 @@ const PatientDashboard = ({ user }) => {
             <ClipboardDocumentListIcon className="icon-24" aria-hidden="true" /> Active Prescriptions
           </h2>
           <div className="glass-card">
-            {prescriptions.map(prescription => (
-              <div key={prescription.id} style={{
-                padding: '1rem',
-                borderBottom: '1px solid var(--border)',
-                marginBottom: '1rem'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <div>
-                    <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>
-                      {prescription.medication}
-                    </h4>
-                    <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                      {prescription.dosage} - {prescription.frequency}
-                    </p>
-                  </div>
-                  <div className="status-indicator" style={{
-                    background: prescription.remaining < 10 ? 'var(--warning)20' : 'var(--success)20',
-                    color: prescription.remaining < 10 ? 'var(--warning)' : 'var(--success)'
-                  }}>
-                    {prescription.remaining} left
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                Loading prescriptions...
+              </div>
+            ) : prescriptions.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                No active prescriptions
+              </div>
+            ) : (
+              prescriptions.map(prescription => (
+                <div key={prescription.id} style={{
+                  padding: '1rem',
+                  borderBottom: '1px solid var(--border)',
+                  marginBottom: '1rem'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                    <div>
+                      <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>
+                        {prescription.medication}
+                      </h4>
+                      <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                        {prescription.dosage}
+                      </p>
+                      <p style={{ margin: '0.25rem 0', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+                        {prescription.instructions}
+                      </p>
+                    </div>
+                    <div className="status-indicator status-online">
+                      Active
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
             <button className="btn-gradient btn-block" style={{ marginTop: '1rem' }}>
               <ClipboardDocumentListIcon className="btn-icon" aria-hidden="true" /> Request Refill
             </button>

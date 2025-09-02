@@ -1,49 +1,66 @@
 import { useState, useEffect } from 'react'
-import io from 'socket.io-client'
-import '../styles/global.css'
-import VideoCall from './VideoCall'
+import { HandRaisedIcon, ChartBarIcon, UserGroupIcon, ClipboardDocumentListIcon, VideoCameraIcon, BeakerIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from '../lib/api'
+import Navbar from './layout/Navbar'
+import VideoCallScreen from './VideoCall/VideoCallScreen'
 
-export default function DoctorDashboard({ user }) {
-  const [activeTab, setActiveTab] = useState('records')
+export default function DoctorDashboard({ user, onLogout }) {
+  const [activeTab, setActiveTab] = useState('overview')
   const [records, setRecords] = useState([])
   const [patients, setPatients] = useState([])
-  const [_selectedPatient] = useState('')
   const [prescription, setPrescription] = useState({
     patient_id: '',
     medication: '',
     dosage: '',
-    instructions: ''
+    instructions: '',
+    file: null
   })
-
-  // Video call states
-  const [socket, setSocket] = useState(null)
-  const [incomingCall, setIncomingCall] = useState(null)
-  const [activeCall, setActiveCall] = useState(null)
-  const [callStatus, setCallStatus] = useState('idle')
+  const [allPatients, setAllPatients] = useState([])
+  const [incomingCalls, setIncomingCalls] = useState([])
+  const [inCall, setInCall] = useState(false)
+  const [currentCall, setCurrentCall] = useState(null)
 
   useEffect(() => {
     fetchRecords()
     fetchPatients()
-    initializeSocket()
-    
-    return () => {
-      if (socket) {
-        socket.disconnect()
-      }
-    }
+    fetchAllPatients()
   }, [])
-
-  const initializeSocket = () => {
-    const newSocket = io({
-      withCredentials: true
-    })
-    
-    newSocket.on('incoming_call', (data) => {
-      setIncomingCall(data)
-    })
-    
-    setSocket(newSocket)
+  
+  // Removed automatic polling - only manual check
+  
+  const checkIncomingCalls = async () => {
+    try {
+      console.log('🔍 CHECK CALLS CLICKED - Current user:', user)
+      console.log('🔍 Starting to fetch incoming calls...')
+      
+      // Check auth status first
+      const authResponse = await apiFetch('/api/auth/status', {
+        credentials: 'include'
+      })
+      console.log('🔐 Auth status:', authResponse.status)
+      if (authResponse.ok) {
+        const authData = await authResponse.json()
+        console.log('🔐 Auth data:', authData)
+      }
+      
+      const response = await apiFetch('/api/doctor/incoming-calls', {
+        credentials: 'include'
+      })
+      
+      console.log('📡 Response received:', response.status, response.statusText)
+      
+      if (response.ok) {
+        const calls = await response.json()
+        console.log('📞 Incoming calls found:', calls.length, calls)
+        setIncomingCalls(calls)
+        console.log('✅ State updated with calls:', calls)
+      } else {
+        const errorText = await response.text()
+        console.error('❌ Failed to fetch calls:', response.status, errorText)
+      }
+    } catch (error) {
+      console.error('💥 Error checking calls:', error)
+    }
   }
 
   const fetchRecords = async () => {
@@ -70,6 +87,25 @@ export default function DoctorDashboard({ user }) {
     }
   }
 
+  const fetchAllPatients = async () => {
+    try {
+      console.log('Fetching all patients...')
+      const response = await apiFetch('/api/all-patients', {
+        credentials: 'include'
+      })
+      console.log('Response status:', response.status)
+      if (response.ok) {
+        const data = await response.json()
+        console.log('All patients data:', data)
+        setAllPatients(data)
+      } else {
+        console.error('Failed to fetch patients:', response.status)
+      }
+    } catch (err) {
+      console.error('Error fetching all patients:', err)
+    }
+  }
+
   const verifyRecord = async (recordId) => {
     try {
       const response = await apiFetch('/api/doctor/verify-record', {
@@ -89,14 +125,22 @@ export default function DoctorDashboard({ user }) {
   const addPrescription = async (e) => {
     e.preventDefault()
     try {
+      const formData = new FormData()
+      formData.append('patient_id', prescription.patient_id)
+      formData.append('medication', prescription.medication)
+      formData.append('dosage', prescription.dosage)
+      formData.append('instructions', prescription.instructions)
+      if (prescription.file) {
+        formData.append('prescription_file', prescription.file)
+      }
+
       const response = await apiFetch('/api/doctor/prescriptions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(prescription)
+        body: formData
       })
       if (response.ok) {
-        setPrescription({ patient_id: '', medication: '', dosage: '', instructions: '' })
+        setPrescription({ patient_id: '', medication: '', dosage: '', instructions: '', file: null })
         alert('Prescription added successfully!')
       }
     } catch (err) {
@@ -106,273 +150,201 @@ export default function DoctorDashboard({ user }) {
 
   const respondToCall = async (callId, response) => {
     try {
-      await apiFetch('/api/call/respond', {
+      const apiResponse = await apiFetch('/api/call/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ call_id: callId, response })
       })
       
-      socket.emit('call_response', {
-        call_id: callId,
-        response: response
-      })
-      
-      if (response === 'accept') {
-        setActiveCall(callId)
-        setCallStatus('in-call')
+      if (apiResponse.ok) {
+        if (response === 'accept') {
+          const call = incomingCalls.find(c => c.id === callId)
+          setCurrentCall(call)
+          setInCall(true)
+        }
+        setIncomingCalls(prev => prev.filter(call => call.id !== callId))
       }
-      
-      setIncomingCall(null)
     } catch (err) {
       console.error('Error responding to call:', err)
     }
   }
 
-  const endVideoCall = async () => {
-    try {
-      if (activeCall) {
-        await apiFetch('/api/call/end', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ call_id: activeCall })
-        })
-      }
-      
-      setActiveCall(null)
-      setCallStatus('idle')
-    } catch (err) {
-      console.error('Error ending call:', err)
-    }
+  const endCall = () => {
+    setInCall(false)
+    setCurrentCall(null)
   }
 
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(30px)',
-    padding: 'clamp(20px, 5vw, 40px)',
-    borderRadius: 'clamp(16px, 4vw, 24px)',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-    border: '2px solid rgba(255, 255, 255, 0.2)',
-    marginBottom: 'clamp(20px, 5vw, 40px)',
-    position: 'relative',
-    zIndex: 1,
-    animation: 'slideIn 0.6s ease-out'
-  }
-
-  const inputStyle = {
-    width: '100%',
-    padding: 'clamp(12px, 3vw, 16px)',
-    border: '2px solid rgba(0, 0, 0, 0.1)',
-    borderRadius: 'clamp(8px, 2vw, 12px)',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    outline: 'none',
-    marginBottom: 'clamp(12px, 3vw, 20px)',
-    transition: 'all 0.3s ease',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(10px)'
+  if (inCall) {
+    return (
+      <VideoCallScreen
+        onEndCall={endCall}
+        userRole="doctor"
+        callData={{ patient_name: currentCall?.patient_name }}
+      />
+    )
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #dcfce7 0%, #d1fae5 50%, #ecfdf5 100%)',
-      padding: 'clamp(16px, 4vw, 32px)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Animated Background Elements */}
-      <div style={{
-        position: 'fixed',
-        top: '8%',
-        right: '8%',
-        width: 'clamp(120px, 20vw, 250px)',
-        height: 'clamp(120px, 20vw, 250px)',
-        background: 'radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%)',
-        borderRadius: '50%',
-        animation: 'bounce 10s ease-in-out infinite',
-        pointerEvents: 'none',
-        zIndex: 0
-      }}></div>
-      <div style={{
-        position: 'fixed',
-        bottom: '15%',
-        left: '5%',
-        width: 'clamp(80px, 15vw, 180px)',
-        height: 'clamp(80px, 15vw, 180px)',
-        background: 'radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%)',
-        borderRadius: '50%',
-        animation: 'bounce 14s ease-in-out infinite reverse',
-        pointerEvents: 'none',
-        zIndex: 0
-      }}></div>
-      <div style={{ 
-        marginBottom: 'clamp(32px, 8vw, 48px)',
-        position: 'relative',
-        zIndex: 1,
-        animation: 'slideIn 0.8s ease-out'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 20px)', marginBottom: '12px' }}>
-          <div style={{
-            width: 'clamp(50px, 10vw, 70px)',
-            height: 'clamp(50px, 10vw, 70px)',
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 'clamp(20px, 5vw, 28px)',
-            boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)',
-            animation: 'pulse 3s ease-in-out infinite'
-          }}>
-            ⚕️
-          </div>
-          <h1 style={{ 
-            fontSize: 'clamp(28px, 7vw, 42px)', 
-            fontWeight: '800', 
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            margin: 0,
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
-            Welcome, Dr. {user.name}!
-          </h1>
-        </div>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
-          background: 'rgba(255, 255, 255, 0.2)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '25px',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
-        }}>
-          <span style={{ fontSize: 'clamp(16px, 4vw, 20px)' }}>🏥</span>
-          <span style={{ 
-            color: '#374151', 
-            fontSize: 'clamp(14px, 3.5vw, 18px)',
-            fontWeight: '600'
-          }}>
-            Doctor Dashboard
-          </span>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(140px, 28vw, 180px), 1fr))',
-        gap: 'clamp(8px, 2vw, 16px)', 
-        marginBottom: 'clamp(24px, 6vw, 40px)',
-        position: 'relative',
-        zIndex: 1
-      }}>
-        {[
-          { id: 'records', name: 'Patient Records', icon: '📋' },
-          { id: 'patients', name: 'My Patients', icon: '👥' },
-          { id: 'prescriptions', name: 'Add Prescription', icon: '💊' },
-          { id: 'calls', name: 'Video Calls', icon: '📹' }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px)',
-              border: activeTab === tab.id ? '2px solid #10b981' : '1px solid rgba(0, 0, 0, 0.1)',
-              borderRadius: 'clamp(8px, 2vw, 12px)',
-              background: activeTab === tab.id ? 
-                'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' : 
-                'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(10px)',
-              color: activeTab === tab.id ? '#059669' : '#374151',
-              cursor: 'pointer',
-              fontSize: 'clamp(12px, 2.5vw, 14px)',
-              fontWeight: '600',
-              transition: 'all 0.3s ease',
-              boxShadow: activeTab === tab.id ? 
-                '0 4px 15px rgba(16, 185, 129, 0.2)' : 
-                '0 2px 8px rgba(0, 0, 0, 0.1)',
-              textAlign: 'center'
-            }}
-          >
-            {tab.icon} {tab.name}
-          </button>
-        ))}
-      </div>
-
-      {/* Patient Records */}
-      {activeTab === 'records' && (
-        <div style={cardStyle}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-            Patient Records for Review
-          </h2>
-          {records.length === 0 ? (
-            <p style={{ color: '#6b7280', textAlign: 'center', padding: '48px' }}>
-              No records pending review.
+    <div className="animate-fade-in">
+      <Navbar
+        user={user}
+        onLogout={onLogout}
+        isDarkMode={false}
+        onThemeToggle={() => {}}
+        onSidebarToggle={() => {}}
+        isSidebarOpen={false}
+      />
+      <div style={{ padding: '1rem' }}>
+      {/* Welcome Header */}
+      <div className="glass-card card-hover" style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 className="heading-1 heading-with-icon" style={{ margin: 0 }}>
+              <HandRaisedIcon className="icon-24" aria-hidden="true" /> Welcome back, Dr. {user?.name}!
+            </h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.125rem', margin: '0.5rem 0 0 0' }}>
+              Manage your patients and medical practice
             </p>
-          ) : (
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {records.map(record => (
-                <div key={record.id} style={{
-                  padding: '20px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  backgroundColor: '#f9fafb'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                    <div>
-                      <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '4px' }}>
-                        {record.title}
-                      </h3>
-                      <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-                        Patient: {record.patient_name}
-                      </p>
-                    </div>
-                    <span style={{
-                      padding: '4px 12px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      borderRadius: '12px',
-                      backgroundColor: record.status === 'verified' ? '#dcfce7' : '#fef3c7',
-                      color: record.status === 'verified' ? '#166534' : '#92400e'
-                    }}>
-                      {record.status}
-                    </span>
-                  </div>
-                  
-                  <p style={{ color: '#6b7280', marginBottom: '12px' }}>{record.description}</p>
-                  
-                  <div style={{
-                    padding: '12px',
-                    backgroundColor: '#e0f2fe',
-                    borderRadius: '6px',
-                    marginBottom: '16px'
-                  }}>
-                    <p style={{ fontSize: '14px', color: '#0369a1', margin: 0 }}>
-                      <strong>AI Analysis:</strong> {record.ai_analysis}
-                    </p>
-                  </div>
+          </div>
+          <div className="gradient-border" style={{
+            padding: '1rem',
+            borderRadius: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--primary)' }}>
+              {patients.length}
+            </div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              Patients
+            </div>
+          </div>
+        </div>
+      </div>
 
-                  {record.status === 'pending' && (
-                    <button
-                      onClick={() => verifyRecord(record.id)}
-                      style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#059669',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Verify Record
+      {/* Navigation Tabs */}
+      <div className="glass-card" style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={activeTab === 'overview' ? 'btn-gradient' : 'btn-outline'}
+          >
+            <ChartBarIcon className="btn-icon" aria-hidden="true" /> Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('patients')}
+            className={activeTab === 'patients' ? 'btn-gradient' : 'btn-outline'}
+          >
+            <UserGroupIcon className="btn-icon" aria-hidden="true" /> Patients
+          </button>
+          <button
+            onClick={() => setActiveTab('records')}
+            className={activeTab === 'records' ? 'btn-gradient' : 'btn-outline'}
+          >
+            <ClipboardDocumentListIcon className="btn-icon" aria-hidden="true" /> Records
+          </button>
+          <button
+            onClick={() => setActiveTab('prescriptions')}
+            className={activeTab === 'prescriptions' ? 'btn-gradient' : 'btn-outline'}
+          >
+            <BeakerIcon className="btn-icon" aria-hidden="true" /> Prescriptions
+          </button>
+          <button
+            onClick={() => setActiveTab('calls')}
+            className={activeTab === 'calls' ? 'btn-gradient' : 'btn-outline'}
+          >
+            <VideoCameraIcon className="btn-icon" aria-hidden="true" /> Video Calls
+          </button>
+        </div>
+      </div>
+
+      {/* Overview */}
+      {activeTab === 'overview' && (
+        <div className="section-spacing">
+          <h2 className="heading-2 heading-with-icon" style={{ marginBottom: '1rem' }}>
+            <ChartBarIcon className="icon-24" aria-hidden="true" /> Practice Overview
+          </h2>
+          <div className="grid-auto-cards">
+            <div className="glass-card card-hover animate-fade-in-scale vital-card">
+              <div className="vital-card-header">
+                <div className="vital-icon-container">
+                  <UserGroupIcon className="icon-24" aria-hidden="true" />
+                </div>
+                <div className="status-dot success animate-pulse"></div>
+              </div>
+              <div>
+                <p className="vital-label">Total Patients</p>
+                <p className="vital-value">{patients.length}</p>
+              </div>
+            </div>
+            <div className="glass-card card-hover animate-fade-in-scale vital-card">
+              <div className="vital-card-header">
+                <div className="vital-icon-container">
+                  <ClipboardDocumentListIcon className="icon-24" aria-hidden="true" />
+                </div>
+                <div className="status-dot success animate-pulse"></div>
+              </div>
+              <div>
+                <p className="vital-label">Medical Records</p>
+                <p className="vital-value">{records.length}</p>
+              </div>
+            </div>
+            <div className="glass-card card-hover animate-fade-in-scale vital-card">
+              <div className="vital-card-header">
+                <div className="vital-icon-container">
+                  <VideoCameraIcon className="icon-24" aria-hidden="true" />
+                </div>
+                <div className="status-dot warning animate-pulse"></div>
+              </div>
+              <div>
+                <p className="vital-label">Pending Calls</p>
+                <p className="vital-value">{incomingCalls.length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Patients */}
+      {activeTab === 'patients' && (
+        <div className="glass-card">
+          <h2 className="heading-2 heading-with-icon" style={{ marginBottom: '1.5rem' }}>
+            <UserGroupIcon className="icon-24" aria-hidden="true" /> My Patients
+          </h2>
+          
+          {patients.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>👥</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                No Patients Yet
+              </h3>
+              <p>Patients will appear here once they book appointments with you.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {patients.map(patient => (
+                <div key={patient.id} className="glass-card" style={{ padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div className="avatar-48-secondary">
+                        <UserGroupIcon className="icon-20" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.25rem' }}>
+                          {patient.name}
+                        </h4>
+                        <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                          {patient.email}
+                        </p>
+                        <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                          {patient.phone}
+                        </p>
+                      </div>
+                    </div>
+                    <button className="btn-gradient">
+                      <ClipboardDocumentListIcon className="btn-icon" aria-hidden="true" /> View Records
                     </button>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -380,34 +352,70 @@ export default function DoctorDashboard({ user }) {
         </div>
       )}
 
-      {/* Patients */}
-      {activeTab === 'patients' && (
-        <div style={cardStyle}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-            My Patients
+      {/* Medical Records */}
+      {activeTab === 'records' && (
+        <div className="glass-card">
+          <h2 className="heading-2 heading-with-icon" style={{ marginBottom: '1.5rem' }}>
+            <ClipboardDocumentListIcon className="icon-24" aria-hidden="true" /> Medical Records Review
           </h2>
-          {patients.length === 0 ? (
-            <p style={{ color: '#6b7280', textAlign: 'center', padding: '48px' }}>
-              No patients assigned yet.
-            </p>
+          
+          {records.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📋</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                No Records to Review
+              </h3>
+              <p>Medical records will appear here when patients upload them.</p>
+            </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-              {patients.map(patient => (
-                <div key={patient.id} style={{
-                  padding: '20px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  backgroundColor: '#f9fafb'
-                }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '8px' }}>
-                    {patient.name}
-                  </h3>
-                  <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>
-                    📧 {patient.email}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {records.map(record => (
+                <div key={record.id} className="glass-card" style={{ padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                    <div>
+                      <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.25rem' }}>
+                        {record.title}
+                      </h4>
+                      <p style={{ margin: '0.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                        Patient: {record.patient_name} • {record.record_type}
+                      </p>
+                    </div>
+                    <div className="status-indicator" style={{
+                      background: record.status === 'pending' ? 'var(--warning)20' : 'var(--success)20',
+                      color: record.status === 'pending' ? 'var(--warning)' : 'var(--success)'
+                    }}>
+                      {record.status}
+                    </div>
+                  </div>
+                  <p style={{ margin: '0 0 1rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                    {record.description}
                   </p>
-                  <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-                    📞 {patient.phone}
-                  </p>
+                  {record.ai_analysis && (
+                    <div style={{
+                      background: 'var(--primary)10',
+                      border: '1px solid var(--primary)30',
+                      borderRadius: '0.5rem',
+                      padding: '1rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <h5 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary)', fontSize: '0.875rem' }}>
+                        AI Analysis
+                      </h5>
+                      <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                        {record.ai_analysis}
+                      </p>
+                    </div>
+                  )}
+                  {record.status === 'pending' && (
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                      <button onClick={() => verifyRecord(record.id)} className="btn-gradient">
+                        ✅ Verify Record
+                      </button>
+                      <button className="btn-outline">
+                        📝 Add Notes
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -417,62 +425,77 @@ export default function DoctorDashboard({ user }) {
 
       {/* Add Prescription */}
       {activeTab === 'prescriptions' && (
-        <div style={cardStyle}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-            Add Prescription
+        <div className="glass-card">
+          <h2 className="heading-2 heading-with-icon" style={{ marginBottom: '1.5rem' }}>
+            <BeakerIcon className="icon-24" aria-hidden="true" /> Add Prescription
           </h2>
           <form onSubmit={addPrescription}>
-            <select
-              value={prescription.patient_id}
-              onChange={(e) => setPrescription({...prescription, patient_id: e.target.value})}
-              style={inputStyle}
-              required
-            >
-              <option value="">Select Patient</option>
-              {patients.map(patient => (
-                <option key={patient.id} value={patient.id}>{patient.name}</option>
-              ))}
-            </select>
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="field-label">Select Patient</label>
+              <select
+                value={prescription.patient_id}
+                onChange={(e) => setPrescription({...prescription, patient_id: e.target.value})}
+                className="input-enhanced"
+                required
+              >
+                <option value="">Choose a patient</option>
+                {allPatients.map(patient => (
+                  <option key={patient.id} value={patient.id}>{patient.name} - {patient.email}</option>
+                ))}
+              </select>
+            </div>
             
-            <input
-              type="text"
-              placeholder="Medication Name"
-              value={prescription.medication}
-              onChange={(e) => setPrescription({...prescription, medication: e.target.value})}
-              style={inputStyle}
-              required
-            />
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="field-label">Medication Name</label>
+              <input
+                type="text"
+                value={prescription.medication}
+                onChange={(e) => setPrescription({...prescription, medication: e.target.value})}
+                className="input-enhanced"
+                placeholder="e.g., Lisinopril"
+                required
+              />
+            </div>
             
-            <input
-              type="text"
-              placeholder="Dosage (e.g., 500mg twice daily)"
-              value={prescription.dosage}
-              onChange={(e) => setPrescription({...prescription, dosage: e.target.value})}
-              style={inputStyle}
-              required
-            />
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="field-label">Dosage</label>
+              <input
+                type="text"
+                value={prescription.dosage}
+                onChange={(e) => setPrescription({...prescription, dosage: e.target.value})}
+                className="input-enhanced"
+                placeholder="e.g., 10mg once daily"
+                required
+              />
+            </div>
             
-            <textarea
-              placeholder="Instructions"
-              value={prescription.instructions}
-              onChange={(e) => setPrescription({...prescription, instructions: e.target.value})}
-              style={{...inputStyle, height: '100px', resize: 'vertical'}}
-            />
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="field-label">Instructions</label>
+              <textarea
+                value={prescription.instructions}
+                onChange={(e) => setPrescription({...prescription, instructions: e.target.value})}
+                className="input-enhanced"
+                rows="3"
+                placeholder="Special instructions for the patient..."
+              />
+            </div>
             
-            <button
-              type="submit"
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#059669',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Add Prescription
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="field-label">Prescription File (Optional)</label>
+              <input
+                type="file"
+                onChange={(e) => setPrescription({...prescription, file: e.target.files[0]})}
+                className="input-enhanced"
+                accept=".pdf,.jpg,.jpeg,.png"
+                style={{ padding: '0.75rem' }}
+              />
+              <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                Upload prescription document (PDF, JPG, PNG)
+              </p>
+            </div>
+            
+            <button type="submit" className="btn-gradient">
+              <BeakerIcon className="btn-icon" aria-hidden="true" /> Add Prescription
             </button>
           </form>
         </div>
@@ -480,110 +503,80 @@ export default function DoctorDashboard({ user }) {
 
       {/* Video Calls */}
       {activeTab === 'calls' && (
-        <div style={cardStyle}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-            Video Call Management
-          </h2>
+        <div>
+          <div className="glass-card" style={{ marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 className="heading-2" style={{ margin: 0 }}>📹 Video Calls</h2>
+              <button onClick={checkIncomingCalls} className="btn-gradient">🔄 Check Calls</button>
+            </div>
+          </div>
           
-          {callStatus === 'idle' && (
-            <div style={{ textAlign: 'center', padding: '48px' }}>
-              <div style={{ fontSize: '64px', marginBottom: '16px' }}>📹</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>
-                Ready for Video Calls
-              </h3>
-              <p style={{ color: '#6b7280' }}>Waiting for incoming patient calls...</p>
+          {incomingCalls.length === 0 ? (
+            <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📹</div>
+              <h3>No Incoming Calls</h3>
+              <p style={{ color: 'var(--text-muted)' }}>Waiting for patients to call...</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {incomingCalls.map(call => (
+                <div key={call.id} className="glass-card" style={{
+                  padding: '2rem',
+                  border: '3px solid var(--success)',
+                  background: 'var(--success)20'
+                }}>
+                  <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📞</div>
+                    <h3 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)' }}>
+                      Incoming Call from {call.patient_name}
+                    </h3>
+                    <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>
+                      Received at {new Date(call.created_at).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        respondToCall(call.id, 'decline')
+                      }}
+                      style={{ 
+                        padding: '1rem 2rem',
+                        fontSize: '1.125rem',
+                        background: 'var(--error)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ❌ Decline
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        respondToCall(call.id, 'accept')
+                      }}
+                      style={{ 
+                        padding: '1rem 2rem',
+                        fontSize: '1.125rem',
+                        background: 'var(--success)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ✅ Accept Call
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
       )}
-      
-      {/* Incoming Call Notification */}
-      {incomingCall && (
-        <div style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          backgroundColor: 'white',
-          padding: '32px',
-          borderRadius: '16px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          zIndex: 1000,
-          textAlign: 'center',
-          minWidth: '400px'
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📞</div>
-          <h3 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>
-            Incoming Video Call
-          </h3>
-          <p style={{ fontSize: '16px', color: '#6b7280', marginBottom: '24px' }}>
-            {incomingCall.patient_name} is calling you
-          </p>
-          
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-            <button
-              onClick={() => respondToCall(incomingCall.call_id, 'decline')}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              ❌ Decline
-            </button>
-            
-            <button
-              onClick={() => respondToCall(incomingCall.call_id, 'accept')}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              ✅ Accept
-            </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Active Video Call */}
-      {callStatus === 'in-call' && activeCall && (
-        <VideoCall
-          callId={activeCall}
-          onEndCall={endVideoCall}
-          userRole="doctor"
-          isInitiator={false}
-        />
-      )}
-      
-      {/* Overlay for incoming call */}
-      {incomingCall && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 999
-        }} />
-      )}
+      </div>
     </div>
   )
 }

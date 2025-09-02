@@ -179,10 +179,10 @@ const LoginNew = ({ onLogin }) => {
               <strong>Patient:</strong> patient@demo.com / demo123
             </p>
             <p className="m-0 mb-2">
-              <strong>Doctor:</strong> doctor@healthcare.com / doctor123
+              <strong>Doctor:</strong> doctor@demo.com / demo123
             </p>
             <p className="m-0">
-              <strong>Admin:</strong> admin@healthcare.com / admin123
+              <strong>Admin:</strong> admin@demo.com / demo123
             </p>
           </div>
         </div>

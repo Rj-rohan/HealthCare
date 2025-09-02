@@ -1,16 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MagnifyingGlassIcon, SunIcon, MoonIcon, BellIcon, ChevronDownIcon, UserCircleIcon, LockClosedIcon, QuestionMarkCircleIcon, CalendarDaysIcon, ClipboardDocumentListIcon, DocumentChartBarIcon, ArrowRightOnRectangleIcon, HeartIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { apiFetch } from '../../lib/api'
 
 const Navbar = ({ user, onThemeToggle, isDarkMode, onLogout, onSidebarToggle, isSidebarOpen }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [notifications, setNotifications] = useState([])
 
-  const notifications = [
-    { id: 1, type: 'appointment', message: 'Appointment with Dr. Smith in 30 minutes', time: '2 min ago' },
-    { id: 2, type: 'prescription', message: 'New prescription available for pickup', time: '1 hour ago' },
-    { id: 3, type: 'report', message: 'Lab results are ready for review', time: '3 hours ago' }
-  ]
+  useEffect(() => {
+    if (user) {
+      fetchNotifications()
+    }
+  }, [user])
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await apiFetch('/api/notifications', { credentials: 'include' })
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(data)
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+    }
+  }
 
   const getNotificationIcon = (type) => {
     switch (type) {

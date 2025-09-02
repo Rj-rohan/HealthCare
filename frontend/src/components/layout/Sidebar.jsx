@@ -21,7 +21,7 @@ import {
   ChevronDoubleRightIcon
 } from '@heroicons/react/24/outline'
 
-const Sidebar = ({ activeTab, setActiveTab, user, onLogout, isOpen = true }) => {
+const Sidebar = ({ activeTab, setActiveTab, user, onLogout, isOpen = true, onItemClick, onClose }) => {
 
   const menuItems = [
     { id: 'dashboard', icon: <HomeIcon className="nav-icon" aria-hidden="true" />, label: 'Dashboard', roles: ['patient', 'doctor', 'admin'] },
@@ -72,7 +72,7 @@ const Sidebar = ({ activeTab, setActiveTab, user, onLogout, isOpen = true }) => 
         {filteredItems.map(item => (
           <button
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => (onItemClick ? onItemClick(item.id) : setActiveTab(item.id))}
             className={`nav-item nav-button ${activeTab === item.id ? 'nav-active' : ''} card-hover`}
           >
             {item.icon}
@@ -84,7 +84,7 @@ const Sidebar = ({ activeTab, setActiveTab, user, onLogout, isOpen = true }) => 
       {/* Logout Button */}
       <div className="sidebar-footer">
         <button
-          onClick={onLogout}
+          onClick={() => { onLogout(); if (onClose) onClose(); }}
           className="btn btn-logout btn-block"
         >
           <ArrowRightOnRectangleIcon className="btn-icon" aria-hidden="true" />

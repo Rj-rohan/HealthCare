@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import './AIGymTrainer.css'
 
 export default function AIGymTrainer() {
   const [isActive, setIsActive] = useState(false)
@@ -131,202 +132,72 @@ export default function AIGymTrainer() {
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(20px)',
-    padding: 'clamp(16px, 4vw, 24px)',
-    borderRadius: 'clamp(12px, 3vw, 20px)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    marginBottom: 'clamp(16px, 4vw, 24px)'
-  }
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
-      padding: 'clamp(16px, 4vw, 32px)',
-      color: 'white'
-    }}>
+    <div className="gym-container">
       {/* Header */}
-      <div style={cardStyle}>
-        <h1 style={{
-          fontSize: 'clamp(24px, 6vw, 36px)',
-          fontWeight: '800',
-          background: 'linear-gradient(135deg, #60a5fa 0%, #34d399 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          margin: 0,
-          marginBottom: '8px',
-          textAlign: 'center'
-        }}>
-          🏋️ AI Gym Trainer
-        </h1>
-        <p style={{
-          color: '#94a3b8',
-          margin: 0,
-          textAlign: 'center',
-          fontSize: 'clamp(14px, 3.5vw, 18px)'
-        }}>
-          Real-time pose detection with AI form correction
-        </p>
+      <div className="gym-card gym-header-card">
+        <h1 className="gym-title">🏋️ AI Gym Trainer</h1>
+        <p className="gym-subtitle">Real-time pose detection with AI form correction</p>
         
         {/* Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: 'clamp(12px, 3vw, 20px)',
-          marginTop: '20px'
-        }}>
-          <div style={{
-            background: 'rgba(96, 165, 250, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>🔥</div>
-            <div style={{ fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#60a5fa', fontWeight: '600' }}>
-              Streak: {streak} days
-            </div>
+        <div className="gym-stats">
+          <div className="gym-stat stat-blue">
+            <div className="gym-stat-emoji">🔥</div>
+            <div className="gym-stat-label">Streak: {streak} days</div>
           </div>
           
-          <div style={{
-            background: 'rgba(52, 211, 153, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>⚡</div>
-            <div style={{ fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#34d399', fontWeight: '600' }}>
-              Calories: {Math.round(calories)}
-            </div>
+          <div className="gym-stat stat-green">
+            <div className="gym-stat-emoji">⚡</div>
+            <div className="gym-stat-label">Calories: {Math.round(calories)}</div>
           </div>
           
-          <div style={{
-            background: 'rgba(248, 113, 113, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>⏱️</div>
-            <div style={{ fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#f87171', fontWeight: '600' }}>
-              Time: {formatTime(workoutTime)}
-            </div>
+          <div className="gym-stat stat-red">
+            <div className="gym-stat-emoji">⏱️</div>
+            <div className="gym-stat-label">Time: {formatTime(workoutTime)}</div>
           </div>
           
-          <div style={{
-            background: 'rgba(168, 85, 247, 0.1)',
-            padding: '12px',
-            borderRadius: '12px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)' }}>🎯</div>
-            <div style={{ fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#a855f7', fontWeight: '600' }}>
-              Form: {formScore}%
-            </div>
+          <div className="gym-stat stat-purple">
+            <div className="gym-stat-emoji">🎯</div>
+            <div className="gym-stat-label">Form: {formScore}%</div>
           </div>
         </div>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-        gap: 'clamp(20px, 5vw, 32px)'
-      }}>
+      <div className="gym-grid">
         {/* Camera & Analysis */}
-        <div style={cardStyle}>
-          <h2 style={{
-            fontSize: 'clamp(18px, 4.5vw, 24px)',
-            fontWeight: '700',
-            color: '#e2e8f0',
-            marginBottom: '20px'
-          }}>
-            📹 Live Analysis
-          </h2>
+        <div className="gym-card gym-video-card">
+          <h2 className="gym-section-title">📹 Live Analysis</h2>
           
-          <div style={{
-            position: 'relative',
-            backgroundColor: '#000',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            marginBottom: '20px',
-            aspectRatio: '4/3'
-          }}>
+          <div className="gym-video-box">
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: 'scaleX(-1)'
-              }}
+              className="gym-video"
             />
             <canvas
               ref={canvasRef}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%'
-              }}
+              className="gym-video-canvas"
             />
             
             {/* Overlay Info */}
-            <div style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              background: 'rgba(0, 0, 0, 0.8)',
-              padding: '8px 12px',
-              borderRadius: '8px',
-              fontSize: 'clamp(12px, 3vw, 14px)'
-            }}>
+            <div className="gym-badge gym-badge-top-left">
               {isActive ? '🟢 AI Active' : '🔴 Inactive'}
             </div>
             
-            <div style={{
-              position: 'absolute',
-              bottom: '10px',
-              left: '10px',
-              right: '10px',
-              background: 'rgba(0, 0, 0, 0.8)',
-              padding: '8px 12px',
-              borderRadius: '8px',
-              fontSize: 'clamp(12px, 3vw, 14px)',
-              textAlign: 'center'
-            }}>
+            <div className="gym-overlay-bottom">
               Reps: {repCount} | Form: {formScore}%
             </div>
           </div>
           
           {/* Exercise Selection */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-            gap: '8px',
-            marginBottom: '20px'
-          }}>
+          <div className="gym-exercises-grid">
             {exercises.map(exercise => (
               <button
                 key={exercise.id}
                 onClick={() => setCurrentExercise(exercise.id)}
-                style={{
-                  padding: 'clamp(8px, 2vw, 12px)',
-                  background: currentExercise === exercise.id ?
-                    'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)' :
-                    'rgba(255, 255, 255, 0.1)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: 'clamp(10px, 2.5vw, 12px)',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}
+                className={`gym-exercise-btn ${currentExercise === exercise.id ? 'active' : ''}`}
               >
                 {exercise.icon}<br/>{exercise.name}
               </button>
@@ -334,27 +205,10 @@ export default function AIGymTrainer() {
           </div>
           
           {/* Controls */}
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}>
+          <div className="gym-controls">
             <button
               onClick={isActive ? stopWorkout : startWorkout}
-              style={{
-                padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
-                background: isActive ?
-                  'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' :
-                  'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: 'clamp(14px, 3.5vw, 16px)',
-                fontWeight: '600',
-                cursor: 'pointer',
-                minWidth: '120px'
-              }}
+              className={`gym-primary-btn ${isActive ? 'stop' : 'start'}`}
             >
               {isActive ? '⏹️ Stop' : '▶️ Start Workout'}
             </button>
@@ -366,17 +220,7 @@ export default function AIGymTrainer() {
                 setCalories(0)
                 setFeedback('')
               }}
-              style={{
-                padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
-                background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: 'clamp(14px, 3.5vw, 16px)',
-                fontWeight: '600',
-                cursor: 'pointer',
-                minWidth: '120px'
-              }}
+              className="gym-secondary-btn"
             >
               🔄 Reset
             </button>
@@ -386,63 +230,23 @@ export default function AIGymTrainer() {
         {/* AI Coaching & Stats */}
         <div>
           {/* Current Exercise Info */}
-          <div style={cardStyle}>
-            <h3 style={{
-              fontSize: 'clamp(16px, 4vw, 20px)',
-              fontWeight: '700',
-              color: '#e2e8f0',
-              marginBottom: '16px'
-            }}>
-              🎯 Current Exercise
-            </h3>
-            
+          <div className="gym-card">
+            <h3 className="gym-section-subtitle">🎯 Current Exercise</h3>
             {(() => {
               const exercise = exercises.find(e => e.id === currentExercise)
               return (
                 <div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    marginBottom: '12px'
-                  }}>
-                    <span style={{ fontSize: 'clamp(24px, 6vw, 32px)' }}>{exercise.icon}</span>
+                  <div className="gym-exercise-row">
+                    <span className="gym-exercise-emoji">{exercise.icon}</span>
                     <div>
-                      <h4 style={{
-                        margin: 0,
-                        fontSize: 'clamp(16px, 4vw, 18px)',
-                        color: '#f1f5f9'
-                      }}>
-                        {exercise.name}
-                      </h4>
-                      <p style={{
-                        margin: 0,
-                        fontSize: 'clamp(12px, 3vw, 14px)',
-                        color: '#94a3b8'
-                      }}>
-                        Difficulty: {exercise.difficulty}
-                      </p>
+                      <h4 className="gym-exercise-name">{exercise.name}</h4>
+                      <p className="gym-exercise-meta">Difficulty: {exercise.difficulty}</p>
                     </div>
                   </div>
                   
-                  <div style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    padding: '12px',
-                    borderRadius: '8px'
-                  }}>
-                    <div style={{
-                      fontSize: 'clamp(12px, 3vw, 14px)',
-                      color: '#cbd5e1',
-                      marginBottom: '4px'
-                    }}>
-                      Personal Best: {personalBest[currentExercise]} reps
-                    </div>
-                    <div style={{
-                      fontSize: 'clamp(12px, 3vw, 14px)',
-                      color: '#cbd5e1'
-                    }}>
-                      Calories per rep: {exercise.calories}
-                    </div>
+                  <div className="gym-info-box">
+                    <div className="gym-info-line">Personal Best: {personalBest[currentExercise]} reps</div>
+                    <div className="gym-info-line">Calories per rep: {exercise.calories}</div>
                   </div>
                 </div>
               )
@@ -450,130 +254,33 @@ export default function AIGymTrainer() {
           </div>
 
           {/* AI Feedback */}
-          <div style={cardStyle}>
-            <h3 style={{
-              fontSize: 'clamp(16px, 4vw, 20px)',
-              fontWeight: '700',
-              color: '#e2e8f0',
-              marginBottom: '16px'
-            }}>
-              🤖 AI Coach
-            </h3>
-            
+          <div className="gym-card">
+            <h3 className="gym-section-subtitle">🤖 AI Coach</h3>
             {feedback && (
-              <div style={{
-                background: 'rgba(59, 130, 246, 0.1)',
-                padding: '12px',
-                borderRadius: '8px',
-                marginBottom: '16px',
-                border: '1px solid rgba(59, 130, 246, 0.3)'
-              }}>
-                <div style={{
-                  fontSize: 'clamp(14px, 3.5vw, 16px)',
-                  color: '#60a5fa',
-                  fontWeight: '600'
-                }}>
-                  {feedback}
-                </div>
-              </div>
+              <div className="gym-feedback">{feedback}</div>
             )}
-            
-            <div style={{
-              maxHeight: '200px',
-              overflowY: 'auto'
-            }}>
+            <div className="gym-tips-scroll">
               {aiCoaching.map((tip, index) => (
-                <div key={index} style={{
-                  padding: '8px 12px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: '6px',
-                  marginBottom: '8px',
-                  fontSize: 'clamp(12px, 3vw, 14px)',
-                  color: '#cbd5e1'
-                }}>
-                  {tip}
-                </div>
+                <div key={index} className="gym-tip">{tip}</div>
               ))}
             </div>
           </div>
 
           {/* Workout Summary */}
-          <div style={cardStyle}>
-            <h3 style={{
-              fontSize: 'clamp(16px, 4vw, 20px)',
-              fontWeight: '700',
-              color: '#e2e8f0',
-              marginBottom: '16px'
-            }}>
-              📊 Workout Summary
-            </h3>
-            
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-              gap: '12px'
-            }}>
-              <div style={{
-                textAlign: 'center',
-                padding: '12px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '8px'
-              }}>
-                <div style={{
-                  fontSize: 'clamp(20px, 5vw, 24px)',
-                  fontWeight: 'bold',
-                  color: '#34d399'
-                }}>
-                  {repCount}
-                </div>
-                <div style={{
-                  fontSize: 'clamp(10px, 2.5vw, 12px)',
-                  color: '#94a3b8'
-                }}>
-                  Reps
-                </div>
+          <div className="gym-card">
+            <h3 className="gym-section-subtitle">📊 Workout Summary</h3>
+            <div className="gym-summary-grid">
+              <div className="gym-summary-item">
+                <div className="gym-summary-number num-green">{repCount}</div>
+                <div className="gym-summary-label">Reps</div>
               </div>
-              
-              <div style={{
-                textAlign: 'center',
-                padding: '12px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '8px'
-              }}>
-                <div style={{
-                  fontSize: 'clamp(20px, 5vw, 24px)',
-                  fontWeight: 'bold',
-                  color: '#f87171'
-                }}>
-                  {Math.round(calories)}
-                </div>
-                <div style={{
-                  fontSize: 'clamp(10px, 2.5vw, 12px)',
-                  color: '#94a3b8'
-                }}>
-                  Calories
-                </div>
+              <div className="gym-summary-item">
+                <div className="gym-summary-number num-red">{Math.round(calories)}</div>
+                <div className="gym-summary-label">Calories</div>
               </div>
-              
-              <div style={{
-                textAlign: 'center',
-                padding: '12px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '8px'
-              }}>
-                <div style={{
-                  fontSize: 'clamp(20px, 5vw, 24px)',
-                  fontWeight: 'bold',
-                  color: '#a855f7'
-                }}>
-                  {formScore}%
-                </div>
-                <div style={{
-                  fontSize: 'clamp(10px, 2.5vw, 12px)',
-                  color: '#94a3b8'
-                }}>
-                  Avg Form
-                </div>
+              <div className="gym-summary-item">
+                <div className="gym-summary-number num-purple">{formScore}%</div>
+                <div className="gym-summary-label">Avg Form</div>
               </div>
             </div>
           </div>

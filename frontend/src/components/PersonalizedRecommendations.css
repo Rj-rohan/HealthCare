@@ -1,0 +1,82 @@
+/* Personalized Recommendations - Theme-aware styles */
+
+.personalized-recommendations-container { min-height: 100vh; background: var(--background); padding: 2rem; }
+
+/* Header */
+.personalized-recommendations-header { margin-bottom: 2rem; }
+.personalized-recommendations-title {
+  margin: 0 0 .5rem 0; font-size: 2rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.personalized-recommendations-subtitle { margin: 0; color: var(--text-muted); font-weight: 500; }
+
+/* Stats */
+.personalized-recommendations-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .75rem; margin-top: 1rem; }
+.personalized-recommendations-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+.personalized-recommendations-stat-icon { font-size: 1.5rem; margin-bottom: .25rem; }
+.personalized-recommendations-stat-label { color: var(--text-primary); font-weight: 700; }
+
+/* Grid */
+.personalized-recommendations-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 1.5rem; }
+
+/* Form */
+.personalized-recommendations-form-card { background: var(--glass-bg); backdrop-filter: var(--glass-backdrop); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.25rem; }
+.personalized-recommendations-form-title { margin: 0 0 1rem 0; color: var(--text-primary); font-size: 1.25rem; font-weight: 800; }
+.personalized-recommendations-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+.personalized-recommendations-form-field { margin-bottom: .75rem; }
+.personalized-recommendations-form-label { display: block; margin-bottom: .25rem; color: var(--text-primary); font-weight: 600; font-size: .9rem; }
+.personalized-recommendations-form-input { width: 100%; }
+.personalized-recommendations-form-textarea { width: 100%; height: 96px; resize: vertical; }
+.personalized-recommendations-submit-btn { width: 100%; padding: .875rem 1rem; border-radius: .5rem; border: 0; font-weight: 800; transition: filter .2s ease; }
+.personalized-recommendations-submit-btn.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
+.personalized-recommendations-submit-btn.disabled { background: linear-gradient(135deg, var(--muted), var(--border)); color: #fff; cursor: not-allowed; filter: grayscale(.2); }
+
+/* Results */
+.personalized-recommendations-results { display: grid; gap: 1rem; }
+.personalized-recommendations-section-title { margin: 0 0 .75rem 0; color: var(--text-primary); font-weight: 800; }
+.personalized-recommendations-section-title.success { color: var(--success); }
+.personalized-recommendations-section-title.info { color: var(--primary); }
+.personalized-recommendations-section-title.warning { color: var(--warning); }
+.personalized-recommendations-section-title.danger { color: var(--error); }
+
+.personalized-recommendations-list { margin: 0; padding-left: 1rem; }
+.personalized-recommendations-list.success { color: var(--success-dark); }
+.personalized-recommendations-list.info { color: var(--primary); }
+.personalized-recommendations-list.warning { color: var(--warning-dark); }
+.personalized-recommendations-list.danger { color: var(--error-dark); }
+.personalized-recommendations-list-item { margin-bottom: .5rem; font-size: .95rem; }
+
+/* Cards */
+.personalized-recommendations-insights-card,
+.personalized-recommendations-treatment-card,
+.personalized-recommendations-diet-card,
+.personalized-recommendations-exercise-card,
+.personalized-recommendations-risk-card { background: var(--glass-bg); backdrop-filter: var(--glass-backdrop); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1rem; }
+
+.personalized-recommendations-insight-item { font-size: .9rem; color: var(--warning-dark); background: var(--warning-ghost); padding: .5rem .75rem; border-radius: .5rem; margin-bottom: .5rem; }
+
+/* Empty */
+.personalized-recommendations-empty-state { text-align: center; padding: 2rem; }
+.personalized-recommendations-empty-icon { width: 72px; height: 72px; margin: 0 auto .5rem; display: grid; place-items: center; font-size: 36px; background: var(--surface); border-radius: 16px; color: var(--text-muted); }
+.personalized-recommendations-empty-title { margin: 0 0 .25rem 0; color: var(--text-primary); font-weight: 800; }
+.personalized-recommendations-empty-subtitle { margin: 0; color: var(--text-muted); }
+
+/* Dark mode tweaks */
+[data-theme="dark"] .personalized-recommendations-stat-card { background: rgba(30,30,30,.75); border-color: rgba(255,255,255,.08); }
+[data-theme="dark"] .personalized-recommendations-form-card,
+[data-theme="dark"] .personalized-recommendations-insights-card,
+[data-theme="dark"] .personalized-recommendations-treatment-card,
+[data-theme="dark"] .personalized-recommendations-diet-card,
+[data-theme="dark"] .personalized-recommendations-exercise-card,
+[data-theme="dark"] .personalized-recommendations-risk-card { background: rgba(30,30,30,.8); border-color: rgba(255,255,255,.08); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .personalized-recommendations-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .personalized-recommendations-container { padding: 1rem; }
+  .personalized-recommendations-title { font-size: 1.75rem; }
+  .personalized-recommendations-form-row { grid-template-columns: 1fr; }
+}

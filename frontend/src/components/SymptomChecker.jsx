@@ -80,69 +80,48 @@ export default function SymptomChecker() {
   }
 
   return (
-    <div className="animate-fade-in" style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #dcfce7 0%, #dbeafe 100%)',
-      padding: '32px'
-    }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 className="brand-title gradient-text-brand" style={{ 
-          fontSize: '36px', 
-          fontWeight: 'bold', 
-          margin: 0, 
-          marginBottom: '8px' 
-        }}>
+    <div className="symptom-checker-container">
+      <div className="symptom-checker-header">
+        <h1 className="symptom-checker-title">
           AI Symptom Checker
         </h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>
+        <p className="symptom-checker-subtitle">
           Get instant AI-powered health insights based on your symptoms
         </p>
       </div>
 
-      <div className="grid-2">
+      <div className="symptom-checker-grid">
         {/* Input Section */}
-        <div className="glass-card card-hover animate-fade-in-scale">
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-            <span style={{ marginRight: '12px' }}><MagnifyingGlassIcon className="icon-24" aria-hidden="true" /></span>
-            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>
+        <div className="symptom-checker-input-card">
+          <div className="symptom-checker-card-header">
+            <span className="symptom-checker-card-icon"><MagnifyingGlassIcon className="icon-24" aria-hidden="true" /></span>
+            <h2 className="symptom-checker-card-title">
               Enter Your Information
             </h2>
           </div>
           
           {/* Personal Info */}
-          <div className="grid-2" style={{ marginBottom: '24px' }}>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: '14px', 
-                fontWeight: '500', 
-                color: '#374151', 
-                marginBottom: '8px' 
-              }}>
+          <div className="symptom-checker-personal-info">
+            <div className="symptom-checker-field">
+              <label className="symptom-checker-label">
                 Age
               </label>
               <input
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                className="input-enhanced"
+                className="symptom-checker-input"
                 placeholder="Enter age"
               />
             </div>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: '14px', 
-                fontWeight: '500', 
-                color: '#374151', 
-                marginBottom: '8px' 
-              }}>
+            <div className="symptom-checker-field">
+              <label className="symptom-checker-label">
                 Gender
               </label>
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                className="input-enhanced"
+                className="symptom-checker-input"
               >
                 <option value="">Select gender</option>
                 <option value="male">Male</option>
@@ -153,33 +132,22 @@ export default function SymptomChecker() {
           </div>
 
           {/* Symptom Input */}
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ 
-              display: 'block', 
-              fontSize: '14px', 
-              fontWeight: '500', 
-              color: '#374151', 
-              marginBottom: '8px' 
-            }}>
+          <div className="symptom-checker-symptom-input">
+            <label className="symptom-checker-label">
               Add Symptom
             </label>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="symptom-checker-input-group">
               <input
                 type="text"
                 value={currentSymptom}
                 onChange={(e) => setCurrentSymptom(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addSymptom(currentSymptom)}
-                className="input-enhanced"
-                style={{ flex: 1 }}
+                className="symptom-checker-text-input"
                 placeholder="Type a symptom..."
               />
               <button
                 onClick={() => addSymptom(currentSymptom)}
-                className="btn-gradient"
-                style={{
-                  padding: '12px 16px',
-                  fontSize: '20px'
-                }}
+                className="symptom-checker-add-btn"
               >
                 +
               </button>
@@ -187,25 +155,16 @@ export default function SymptomChecker() {
           </div>
 
           {/* Common Symptoms */}
-          <div style={{ marginBottom: '24px' }}>
-            <p style={{ 
-              fontSize: '14px', 
-              fontWeight: '500', 
-              color: '#374151', 
-              marginBottom: '12px' 
-            }}>
+          <div className="symptom-checker-common-symptoms">
+            <p className="symptom-checker-section-label">
               Common Symptoms:
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div className="symptom-checker-symptom-tags">
               {commonSymptoms.map((symptom) => (
                 <button
                   key={symptom}
                   onClick={() => addSymptom(symptom)}
-                  className="btn-outline"
-                  style={{
-                    padding: '6px 12px',
-                    fontSize: '14px'
-                  }}
+                  className="symptom-checker-symptom-tag"
                 >
                   {symptom}
                 </button>
@@ -215,38 +174,20 @@ export default function SymptomChecker() {
 
           {/* Selected Symptoms */}
           {symptoms.length > 0 && (
-            <div style={{ marginBottom: '24px' }}>
-              <p style={{ 
-                fontSize: '14px', 
-                fontWeight: '500', 
-                color: '#374151', 
-                marginBottom: '12px' 
-              }}>
+            <div className="symptom-checker-selected-symptoms">
+              <p className="symptom-checker-section-label">
                 Selected Symptoms:
               </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="symptom-checker-selected-tags">
                 {symptoms.map((symptom) => (
                   <span
                     key={symptom}
-                    className="status-indicator status-online"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      padding: '6px 12px',
-                      fontSize: '14px'
-                    }}
+                    className="symptom-checker-selected-tag"
                   >
                     {symptom}
                     <button
                       onClick={() => removeSymptom(symptom)}
-                      style={{
-                        marginLeft: '8px',
-                        color: 'inherit',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: '16px'
-                      }}
+                      className="symptom-checker-remove-btn"
                     >
                       ×
                     </button>
@@ -259,22 +200,10 @@ export default function SymptomChecker() {
           <button
             onClick={analyzeSymptoms}
             disabled={symptoms.length === 0 || loading}
-            className="btn-gradient"
-            style={{
-              width: '100%',
-              padding: '16px',
-              background: symptoms.length === 0 || loading ? 
-                'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
-                'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-              cursor: symptoms.length === 0 || loading ? 'not-allowed' : 'pointer'
-            }}
+            className={`symptom-checker-analyze-btn ${symptoms.length === 0 || loading ? 'disabled' : 'active'}`}
           >
             {loading ? (
-              <div className="loading-dots" style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center' 
-              }}>
+              <div className="symptom-checker-loading">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -287,113 +216,69 @@ export default function SymptomChecker() {
         </div>
 
         {/* Results Section */}
-        <div className="glass-card card-hover animate-fade-in-scale">
-          <h2 style={{ 
-            fontSize: '20px', 
-            fontWeight: '600', 
-            color: '#111827', 
-            margin: 0, 
-            marginBottom: '24px' 
-          }}>
+        <div className="symptom-checker-results-card">
+          <h2 className="symptom-checker-card-title">
             AI Analysis Results
           </h2>
           
           {!hasAnalyzed ? (
-            <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <div className="stat-card" style={{
-                width: '80px',
-                height: '80px',
-                margin: '0 auto 16px'
-              }}>
+            <div className="symptom-checker-empty-state">
+              <div className="symptom-checker-empty-icon">
                 <MagnifyingGlassIcon className="icon-24" aria-hidden="true" />
               </div>
-              <p style={{ fontSize: '18px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>
+              <p className="symptom-checker-empty-title">
                 Enter symptoms and click analyze
               </p>
-              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
+              <p className="symptom-checker-empty-subtitle">
                 Get instant AI-powered health insights
               </p>
             </div>
           ) : loading ? (
-            <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <div className="loading-dots" style={{
-                width: '48px',
-                height: '48px',
-                margin: '0 auto 16px'
-              }}>
+            <div className="symptom-checker-loading-state">
+              <div className="symptom-checker-loading-spinner">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
-              <p style={{ fontSize: '16px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>
+              <p className="symptom-checker-loading-title">
                 AI is analyzing your symptoms...
               </p>
-              <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
+              <p className="symptom-checker-loading-subtitle">
                 This may take a few moments
               </p>
             </div>
           ) : (
-            <div>
+                        <div>
               {results.map((result, index) => (
-                <div key={index} className="glass-card card-hover" style={{
-                  border: '1px solid #e5e7eb',
-                  marginBottom: '16px'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'flex-start', 
-                    marginBottom: '12px' 
-                  }}>
-                    <h3 style={{ 
-                      fontSize: '18px', 
-                      fontWeight: '600', 
-                      color: '#111827', 
-                      margin: 0 
-                    }}>
+                <div key={index} className="symptom-checker-result-item">
+                  <div className="symptom-checker-result-header">
+                    <h3 className="symptom-checker-result-title">
                       {result.disease}
                     </h3>
-                    <span className="status-indicator" style={{
-                      background: result.probability > 0.7 ? '#fee2e2' : 
-                                   result.probability > 0.5 ? '#fef3c7' : '#dcfce7',
-                      color: result.probability > 0.7 ? '#991b1b' : 
-                             result.probability > 0.5 ? '#92400e' : '#166534'
-                    }}>
+                    <span className={`symptom-checker-probability ${result.probability > 0.7 ? 'high' : result.probability > 0.5 ? 'medium' : 'low'}`}>
                       {Math.round(result.probability * 100)}% match
                     </span>
                   </div>
-                  <p style={{ color: '#6b7280', marginBottom: '16px', margin: 0 }}>
+                  <p className="symptom-checker-result-description">
                     {result.description}
                   </p>
                   <div>
-                    <p style={{ fontWeight: '500', color: '#374151', marginBottom: '12px', margin: 0 }}>
+                    <p className="symptom-checker-recommendations-title">
                       Recommendations:
                     </p>
-                    <ul style={{ margin: 0, paddingLeft: '0', listStyle: 'none' }}>
+                    <ul className="symptom-checker-recommendations-list">
                       {result.recommendations.map((rec, i) => (
-                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '8px' }}>
-                          <div style={{
-                            width: '6px',
-                            height: '6px',
-                            backgroundColor: '#2563eb',
-                            borderRadius: '50%',
-                            marginTop: '6px',
-                            marginRight: '12px',
-                            flexShrink: 0
-                          }}></div>
-                          <span style={{ color: '#6b7280', fontSize: '14px' }}>{rec}</span>
+                        <li key={i} className="symptom-checker-recommendation-item">
+                          <div className="symptom-checker-recommendation-bullet"></div>
+                          <span className="symptom-checker-recommendation-text">{rec}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
               ))}
-              <div className="glass-card" style={{
-                backgroundColor: '#fef3c7',
-                border: '1px solid #f59e0b',
-                padding: '16px'
-              }}>
-                <p style={{ fontSize: '14px', color: '#92400e', margin: 0 }}>
+              <div className="symptom-checker-disclaimer">
+                <p className="symptom-checker-disclaimer-text">
                   <strong>Disclaimer:</strong> This is an AI-powered analysis for informational purposes only. 
                   Always consult with a healthcare professional for proper medical diagnosis and treatment.
                 </p>

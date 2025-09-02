@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import './PersonalizedRecommendations.css'
 
 export default function PersonalizedRecommendations() {
   const [profile, setProfile] = useState({
@@ -77,112 +78,71 @@ export default function PersonalizedRecommendations() {
   }
 
   return (
-    <div className="animate-fade-in" style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #f59e0b 100%)',
-      padding: 'clamp(16px, 4vw, 32px)'
-    }}>
+    <div className="personalized-recommendations-container animate-fade-in">
       {/* Header */}
-      <div className="glass-card card-hover animate-fade-in-scale" style={{ marginBottom: '2rem' }}>
-        <h1 className="brand-title gradient-text-brand" style={{
-          fontSize: 'clamp(24px, 6vw, 36px)',
-          fontWeight: '800',
-          margin: 0,
-          marginBottom: '8px',
-          textAlign: 'center'
-        }}>
+      <div className="personalized-recommendations-header glass-card card-hover animate-fade-in-scale">
+        <h1 className="personalized-recommendations-title">
           🤖 AI Health Recommendations
         </h1>
-        <p style={{
-          color: '#92400e',
-          margin: 0,
-          textAlign: 'center',
-          fontSize: 'clamp(14px, 3.5vw, 18px)'
-        }}>
+        <p className="personalized-recommendations-subtitle">
           Advanced AI analysis for personalized health insights
         </p>
         
         {/* Health Stats */}
-        <div className="grid-responsive" style={{ marginTop: '20px' }}>
-          <div className="stat-card card-hover" style={{
-            background: 'rgba(34, 197, 94, 0.1)',
-            textAlign: 'center'
-          }}>
-            <div className="stat-number" style={{ color: '#16a34a' }}>💚</div>
-            <div className="stat-label" style={{ color: '#16a34a' }}>
+        <div className="personalized-recommendations-stats">
+          <div className="personalized-recommendations-stat-card card-hover">
+            <div className="personalized-recommendations-stat-icon">💚</div>
+            <div className="personalized-recommendations-stat-label">
               Health Score: {healthScore}%
             </div>
           </div>
           
-          <div className="stat-card card-hover" style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            textAlign: 'center'
-          }}>
-            <div className="stat-number" style={{ color: '#dc2626' }}>⚠️</div>
-            <div className="stat-label" style={{ color: '#dc2626' }}>
+          <div className="personalized-recommendations-stat-card card-hover">
+            <div className="personalized-recommendations-stat-icon">⚠️</div>
+            <div className="personalized-recommendations-stat-label">
               Risk Score: {riskScore}%
             </div>
           </div>
           
-          <div className="stat-card card-hover" style={{
-            background: 'rgba(59, 130, 246, 0.1)',
-            textAlign: 'center'
-          }}>
-            <div className="stat-number" style={{ color: '#2563eb' }}>🧠</div>
-            <div className="stat-label" style={{ color: '#2563eb' }}>
+          <div className="personalized-recommendations-stat-card card-hover">
+            <div className="personalized-recommendations-stat-icon">🧠</div>
+            <div className="personalized-recommendations-stat-label">
               AI Analysis
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid-2">
+      <div className="personalized-recommendations-grid">
         {/* Profile Form */}
-        <div className="glass-card card-hover animate-fade-in-scale">
-          <h2 style={{
-            fontSize: 'clamp(20px, 5vw, 24px)',
-            fontWeight: '700',
-            color: '#92400e',
-            marginBottom: '20px'
-          }}>
+        <div className="personalized-recommendations-form-card glass-card card-hover animate-fade-in-scale">
+          <h2 className="personalized-recommendations-form-title">
             📋 Your Health Profile
           </h2>
           
           <form onSubmit={handleSubmit}>
-            <div className="grid-2" style={{ marginBottom: '16px' }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'clamp(12px, 3vw, 14px)',
-                  fontWeight: '600',
-                  color: '#78350f',
-                  marginBottom: '4px'
-                }}>
+            <div className="personalized-recommendations-form-row">
+              <div className="personalized-recommendations-form-field">
+                <label className="personalized-recommendations-form-label">
                   Age
                 </label>
                 <input
                   type="number"
                   value={profile.age}
                   onChange={(e) => setProfile({...profile, age: e.target.value})}
-                  className="input-enhanced"
+                  className="personalized-recommendations-form-input input-enhanced"
                   placeholder="Enter age"
                 />
               </div>
               
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'clamp(12px, 3vw, 14px)',
-                  fontWeight: '600',
-                  color: '#78350f',
-                  marginBottom: '4px'
-                }}>
+              <div className="personalized-recommendations-form-field">
+                <label className="personalized-recommendations-form-label">
                   Gender
                 </label>
                 <select
                   value={profile.gender}
                   onChange={(e) => setProfile({...profile, gender: e.target.value})}
-                  className="input-enhanced"
+                  className="personalized-recommendations-form-input input-enhanced"
                 >
                   <option value="">Select</option>
                   <option value="male">Male</option>
@@ -192,60 +152,42 @@ export default function PersonalizedRecommendations() {
               </div>
             </div>
 
-            <div className="grid-2" style={{ marginBottom: '16px' }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'clamp(12px, 3vw, 14px)',
-                  fontWeight: '600',
-                  color: '#78350f',
-                  marginBottom: '4px'
-                }}>
+            <div className="personalized-recommendations-form-row">
+              <div className="personalized-recommendations-form-field">
+                <label className="personalized-recommendations-form-label">
                   Weight (kg)
                 </label>
                 <input
                   type="number"
                   value={profile.weight}
                   onChange={(e) => setProfile({...profile, weight: e.target.value})}
-                  className="input-enhanced"
+                  className="personalized-recommendations-form-input input-enhanced"
                   placeholder="Weight"
                 />
               </div>
               
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'clamp(12px, 3vw, 14px)',
-                  fontWeight: '600',
-                  color: '#78350f',
-                  marginBottom: '4px'
-                }}>
+              <div className="personalized-recommendations-form-field">
+                <label className="personalized-recommendations-form-label">
                   Height (cm)
                 </label>
                 <input
                   type="number"
                   value={profile.height}
                   onChange={(e) => setProfile({...profile, height: e.target.value})}
-                  className="input-enhanced"
+                  className="personalized-recommendations-form-input input-enhanced"
                   placeholder="Height"
                 />
               </div>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                fontWeight: '600',
-                color: '#78350f',
-                marginBottom: '4px'
-              }}>
+            <div className="personalized-recommendations-form-field">
+              <label className="personalized-recommendations-form-label">
                 Activity Level
               </label>
               <select
                 value={profile.activityLevel}
                 onChange={(e) => setProfile({...profile, activityLevel: e.target.value})}
-                className="input-enhanced"
+                className="personalized-recommendations-form-input input-enhanced"
               >
                 <option value="sedentary">Sedentary</option>
                 <option value="light">Light Activity</option>
@@ -255,40 +197,26 @@ export default function PersonalizedRecommendations() {
               </select>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                fontWeight: '600',
-                color: '#78350f',
-                marginBottom: '4px'
-              }}>
+            <div className="personalized-recommendations-form-field">
+              <label className="personalized-recommendations-form-label">
                 Medical History
               </label>
               <textarea
                 value={profile.medicalHistory}
                 onChange={(e) => setProfile({...profile, medicalHistory: e.target.value})}
-                className="input-enhanced"
-                style={{ height: '80px', resize: 'vertical' }}
+                className="personalized-recommendations-form-textarea input-enhanced"
                 placeholder="Conditions, allergies, surgeries..."
               />
             </div>
 
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                fontWeight: '600',
-                color: '#78350f',
-                marginBottom: '4px'
-              }}>
+            <div className="personalized-recommendations-form-field">
+              <label className="personalized-recommendations-form-label">
                 Current Symptoms
               </label>
               <textarea
                 value={profile.currentSymptoms}
                 onChange={(e) => setProfile({...profile, currentSymptoms: e.target.value})}
-                className="input-enhanced"
-                style={{ height: '80px', resize: 'vertical' }}
+                className="personalized-recommendations-form-textarea input-enhanced"
                 placeholder="Current symptoms or concerns..."
               />
             </div>
@@ -296,15 +224,7 @@ export default function PersonalizedRecommendations() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-gradient"
-              style={{
-                width: '100%',
-                padding: 'clamp(12px, 3vw, 16px)',
-                background: loading ?
-                  'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' :
-                  'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                cursor: loading ? 'not-allowed' : 'pointer'
-              }}
+              className={`personalized-recommendations-submit-btn ${loading ? 'disabled' : 'active'}`}
             >
               {loading ? '🤖 AI Analyzing...' : '🚀 Get AI Recommendations'}
             </button>
@@ -312,137 +232,78 @@ export default function PersonalizedRecommendations() {
         </div>
 
         {/* Recommendations */}
-        <div>
+        <div className="personalized-recommendations-results">
           {recommendations ? (
             <div>
               {/* AI Insights */}
-              <div className="glass-card card-hover animate-fade-in-scale">
-                <h3 style={{
-                  fontSize: 'clamp(18px, 4.5vw, 20px)',
-                  fontWeight: '700',
-                  color: '#7c2d12',
-                  marginBottom: '16px'
-                }}>
+              <div className="personalized-recommendations-insights-card glass-card card-hover animate-fade-in-scale">
+                <h3 className="personalized-recommendations-section-title">
                   🧠 AI Insights
                 </h3>
                 {aiInsights.map((insight, index) => (
-                  <div key={index} style={{
-                    fontSize: 'clamp(12px, 3vw, 14px)',
-                    color: '#92400e',
-                    marginBottom: '8px',
-                    padding: '8px',
-                    background: 'rgba(251, 191, 36, 0.1)',
-                    borderRadius: '6px'
-                  }}>
+                  <div key={index} className="personalized-recommendations-insight-item">
                     {insight}
                   </div>
                 ))}
               </div>
 
               {/* Treatment Recommendations */}
-              <div className="glass-card card-hover animate-fade-in-scale">
-                <h3 style={{
-                  fontSize: 'clamp(18px, 4.5vw, 20px)',
-                  fontWeight: '700',
-                  color: '#dc2626',
-                  marginBottom: '16px'
-                }}>
+              <div className="personalized-recommendations-treatment-card glass-card card-hover animate-fade-in-scale">
+                <h3 className="personalized-recommendations-section-title danger">
                   🎯 Treatment Recommendations
                 </h3>
-                <ul style={{ margin: 0, paddingLeft: '20px', color: '#7c2d12' }}>
+                <ul className="personalized-recommendations-list danger">
                   {recommendations.treatments.map((treatment, index) => (
-                    <li key={index} style={{
-                      marginBottom: '8px',
-                      fontSize: 'clamp(12px, 3vw, 14px)'
-                    }}>{treatment}</li>
+                    <li key={index} className="personalized-recommendations-list-item">{treatment}</li>
                   ))}
                 </ul>
               </div>
 
               {/* Diet Recommendations */}
-              <div className="glass-card card-hover animate-fade-in-scale">
-                <h3 style={{
-                  fontSize: 'clamp(18px, 4.5vw, 20px)',
-                  fontWeight: '700',
-                  color: '#059669',
-                  marginBottom: '16px'
-                }}>
+              <div className="personalized-recommendations-diet-card glass-card card-hover animate-fade-in-scale">
+                <h3 className="personalized-recommendations-section-title success">
                   🥗 Diet Recommendations
                 </h3>
-                <ul style={{ margin: 0, paddingLeft: '20px', color: '#065f46' }}>
+                <ul className="personalized-recommendations-list success">
                   {recommendations.diet.map((item, index) => (
-                    <li key={index} style={{
-                      marginBottom: '8px',
-                      fontSize: 'clamp(12px, 3vw, 14px)'
-                    }}>{item}</li>
+                    <li key={index} className="personalized-recommendations-list-item">{item}</li>
                   ))}
                 </ul>
               </div>
 
               {/* Exercise Recommendations */}
-              <div className="glass-card card-hover animate-fade-in-scale">
-                <h3 style={{
-                  fontSize: 'clamp(18px, 4.5vw, 20px)',
-                  fontWeight: '700',
-                  color: '#2563eb',
-                  marginBottom: '16px'
-                }}>
+              <div className="personalized-recommendations-exercise-card glass-card card-hover animate-fade-in-scale">
+                <h3 className="personalized-recommendations-section-title info">
                   🏃 Exercise Recommendations
                 </h3>
-                <ul style={{ margin: 0, paddingLeft: '20px', color: '#1e40af' }}>
+                <ul className="personalized-recommendations-list info">
                   {recommendations.exercise.map((exercise, index) => (
-                    <li key={index} style={{
-                      marginBottom: '8px',
-                      fontSize: 'clamp(12px, 3vw, 14px)'
-                    }}>{exercise}</li>
+                    <li key={index} className="personalized-recommendations-list-item">{exercise}</li>
                   ))}
                 </ul>
               </div>
 
               {/* Risk Assessment */}
-              <div className="glass-card card-hover animate-fade-in-scale">
-                <h3 style={{
-                  fontSize: 'clamp(18px, 4.5vw, 20px)',
-                  fontWeight: '700',
-                  color: '#7c2d12',
-                  marginBottom: '16px'
-                }}>
+              <div className="personalized-recommendations-risk-card glass-card card-hover animate-fade-in-scale">
+                <h3 className="personalized-recommendations-section-title warning">
                   ⚠️ Risk Assessment
                 </h3>
-                <ul style={{ margin: 0, paddingLeft: '20px', color: '#92400e' }}>
+                <ul className="personalized-recommendations-list warning">
                   {recommendations.risks.map((risk, index) => (
-                    <li key={index} style={{
-                      marginBottom: '8px',
-                      fontSize: 'clamp(12px, 3vw, 14px)'
-                    }}>{risk}</li>
+                    <li key={index} className="personalized-recommendations-list-item">{risk}</li>
                   ))}
                 </ul>
               </div>
             </div>
           ) : (
-            <div className="glass-card card-hover animate-fade-in-scale" style={{
-              textAlign: 'center',
-              padding: 'clamp(32px, 8vw, 48px) clamp(16px, 4vw, 24px)'
-            }}>
-              <div className="stat-number" style={{ 
-                fontSize: 'clamp(48px, 12vw, 64px)', 
-                marginBottom: '16px' 
-              }}>
+            <div className="personalized-recommendations-empty-state glass-card card-hover animate-fade-in-scale">
+              <div className="personalized-recommendations-empty-icon">
                 🤖
               </div>
-              <h3 style={{
-                fontSize: 'clamp(18px, 4.5vw, 20px)',
-                fontWeight: '700',
-                color: '#92400e',
-                marginBottom: '8px'
-              }}>
+              <h3 className="personalized-recommendations-empty-title">
                 AI Ready to Analyze
               </h3>
-              <p style={{
-                color: '#a16207',
-                margin: 0,
-                fontSize: 'clamp(14px, 3.5vw, 16px)'
-              }}>
+              <p className="personalized-recommendations-empty-subtitle">
                 Complete your profile for personalized AI health insights
               </p>
             </div>

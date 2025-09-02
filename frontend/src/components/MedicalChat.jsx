@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import './MedicalChat.css'
+import { ChatBubbleLeftRightIcon, BoltIcon, PaperAirplaneIcon, CheckCircleIcon, EllipsisHorizontalIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 
 export default function MedicalChat() {
   const [messages, setMessages] = useState([
@@ -52,158 +54,83 @@ export default function MedicalChat() {
   }
 
   return (
-    <div className="animate-fade-in" style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-      padding: '32px'
-    }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 className="brand-title gradient-text-brand" style={{ 
-          fontSize: '36px', 
-          fontWeight: 'bold', 
-          margin: 0, 
-          marginBottom: '8px' 
-        }}>
+    <div className="medical-chat-container animate-fade-in">
+      <div className="medical-chat-header">
+        <h1 className="medical-chat-title">
           💬 Medical Chat Assistant
         </h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>
+        <p className="medical-chat-subtitle">
           Chat with our AI medical assistant for health guidance
         </p>
       </div>
 
-      <div className="glass-card card-hover animate-fade-in-scale" style={{
-        height: '600px',
-        display: 'flex',
-        flexDirection: 'column',
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}>
+      <div className="medical-chat-card glass-card card-hover animate-fade-in-scale">
         {/* Chat Header */}
-        <div style={{
-          padding: '20px 24px',
-          borderBottom: '1px solid #e5e7eb',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          <div className="stat-card" style={{
-            width: '40px',
-            height: '40px',
-            marginRight: '12px',
-            fontSize: '20px'
-          }}>
-            🤖
-          </div>
+        <div className="medical-chat-card-header">
+        <div className="medical-chat-avatar stat-card">🤖</div>
           <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0 }}>
-              AI Medical Assistant
-            </h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-              Online • Ready to help
-            </p>
+            <h3 className="medical-chat-card-title">AI Medical Assistant</h3>
+            <p className="medical-chat-card-status"><span className="status-dot online"></span> Online • Ready to help</p>
+          </div>
+          <div className="medical-chat-header-actions">
+            <BoltIcon className="icon-18" aria-hidden="true" />
+            <EllipsisHorizontalIcon className="icon-18" aria-hidden="true" />
           </div>
         </div>
 
         {/* Messages Area */}
-        <div className="custom-scrollbar" style={{
-          flex: 1,
-          padding: '24px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px'
-        }}>
+        <div className="medical-chat-messages custom-scrollbar">
           {messages.map((message) => (
             <div
               key={message.id}
-              style={{
-                display: 'flex',
-                justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
-              }}
+              className={`medical-chat-row ${message.sender === 'user' ? 'right' : 'left'}`}
             >
-              <div className="glass-card" style={{
-                maxWidth: '70%',
-                padding: '12px 16px',
-                borderRadius: '18px',
-                backgroundColor: message.sender === 'user' ? '#2563eb' : 'rgba(255, 255, 255, 0.8)',
-                color: message.sender === 'user' ? 'white' : '#111827'
-              }}>
-                <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5' }}>{message.text}</p>
-                <p style={{
-                  margin: 0,
-                  marginTop: '4px',
-                  fontSize: '12px',
-                  opacity: 0.7
-                }}>
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
+              {message.sender === 'ai' ? (
+                <div className="medical-chat-avatar-small ai"><ChatBubbleLeftRightIcon className="icon-16" aria-hidden="true" /></div>
+              ) : (
+                <div className="medical-chat-avatar-small user"><UserCircleIcon className="icon-16" aria-hidden="true" /></div>
+              )}
+              <div className={`medical-chat-bubble ${message.sender}`}>
+                <p className="medical-chat-text">{message.text}</p>
+                <p className="medical-chat-time"><CheckCircleIcon className="icon-14" aria-hidden="true" /> {message.timestamp.toLocaleTimeString()}</p>
               </div>
             </div>
           ))}
 
           {isTyping && (
-            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-              <div className="glass-card" style={{
-                padding: '12px 16px',
-                borderRadius: '18px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                color: '#111827'
-              }}>
-                <div className="loading-dots" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
+            <div className="medical-chat-row left">
+              <div className="medical-chat-avatar-small ai"><ChatBubbleLeftRightIcon className="icon-16" aria-hidden="true" /></div>
+              <div className="medical-chat-bubble ai">
+                <div className="medical-chat-typing loading-dots"><span></span><span></span><span></span></div>
               </div>
             </div>
           )}
         </div>
 
         {/* Input Area */}
-        <div style={{
-          padding: '20px 24px',
-          borderTop: '1px solid #e5e7eb',
-          display: 'flex',
-          gap: '12px'
-        }}>
+        <div className="medical-chat-input">
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
             placeholder="Type your medical question..."
-            className="input-enhanced"
-            style={{
-              flex: 1,
-              borderRadius: '24px'
-            }}
+            className="medical-chat-input-field input-enhanced"
           />
           <button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isTyping}
-            className="btn-gradient"
-            style={{
-              padding: '12px 20px',
-              borderRadius: '24px',
-              background: !inputMessage.trim() || isTyping ? 
-                'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
-                'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-              cursor: !inputMessage.trim() || isTyping ? 'not-allowed' : 'pointer'
-            }}
+            className={`medical-chat-send-btn ${!inputMessage.trim() || isTyping ? 'disabled' : 'active'}`}
           >
+            <PaperAirplaneIcon className="icon-18" aria-hidden="true" />
             Send
           </button>
         </div>
       </div>
 
       {/* Disclaimer */}
-      <div className="glass-card card-hover" style={{
-        marginTop: '24px',
-        maxWidth: '800px',
-        margin: '24px auto 0',
-        backgroundColor: '#fef3c7',
-        border: '1px solid #f59e0b'
-      }}>
-        <p style={{ fontSize: '14px', color: '#92400e', margin: 0 }}>
+      <div className="medical-chat-disclaimer glass-card card-hover">
+        <p className="medical-chat-disclaimer-text">
           <strong>Important:</strong> This AI assistant provides general health information only. 
           Always consult with qualified healthcare professionals for medical advice, diagnosis, or treatment.
         </p>

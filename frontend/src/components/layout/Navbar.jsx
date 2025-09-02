@@ -134,7 +134,7 @@ const Navbar = ({ user, onThemeToggle, isDarkMode, onLogout, onSidebarToggle, is
 
           {/* Profile Dropdown */}
           {showProfile && (
-            <div className="glass-card animate-fade-in-scale dropdown-panel dropdown-sm">
+            <div className="glass-card animate-fade-in-scale dropdown-panel dropdown-sm dropdown-panel--tinted">
               <div style={{ padding: '0.5rem' }}>
                 <button className="dropdown-action">
                   <UserCircleIcon className="icon-18" aria-hidden="true" /> Profile Settings

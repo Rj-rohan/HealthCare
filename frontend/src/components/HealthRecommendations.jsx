@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import './HealthRecommendations.css'
 
 export default function HealthRecommendations() {
   const [recommendations, setRecommendations] = useState([])
@@ -106,61 +107,30 @@ export default function HealthRecommendations() {
     }, 500)
   }, [selectedCategory])
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return { bg: '#fee2e2', text: '#991b1b', border: '#fecaca' }
-      case 'medium': return { bg: '#fef3c7', text: '#92400e', border: '#fde68a' }
-      case 'low': return { bg: '#dcfce7', text: '#166534', border: '#bbf7d0' }
-      default: return { bg: '#f3f4f6', text: '#374151', border: '#d1d5db' }
-    }
-  }
+
 
   return (
-    <div className="animate-fade-in" style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-      padding: '32px'
-    }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 className="brand-title gradient-text-brand" style={{ 
-          fontSize: '36px', 
-          fontWeight: 'bold', 
-          margin: 0, 
-          marginBottom: '8px' 
-        }}>
+    <div className="health-recommendations-container">
+      <div className="health-recommendations-header">
+        <h1 className="health-recommendations-title">
           💡 Health Recommendations
         </h1>
-        <p style={{ color: '#6b7280', margin: 0 }}>
+        <p className="health-recommendations-subtitle">
           Personalized health tips and recommendations for better wellness
         </p>
       </div>
 
       {/* Category Filter */}
-      <div className="glass-card card-hover animate-fade-in-scale" style={{
-        marginBottom: '32px',
-        padding: '20px'
-      }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0, marginBottom: '16px' }}>
+      <div className="health-recommendations-filter-card">
+        <h2 className="health-recommendations-filter-title">
           Filter by Category
         </h2>
-        <div className="grid-responsive" style={{ gap: '12px' }}>
+        <div className="health-recommendations-categories">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className="btn-outline"
-              style={{
-                padding: '12px 16px',
-                border: selectedCategory === category.id ? '2px solid #059669' : '1px solid #d1d5db',
-                backgroundColor: selectedCategory === category.id ? '#dcfce7' : 'white',
-                color: selectedCategory === category.id ? '#059669' : '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
+              className={`health-recommendations-category-btn ${selectedCategory === category.id ? 'active' : 'inactive'}`}
             >
               <span>{category.icon}</span>
               {category.name}
@@ -171,80 +141,53 @@ export default function HealthRecommendations() {
 
       {/* Recommendations Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <div className="loading-dots" style={{
-            width: '48px',
-            height: '48px',
-            margin: '0 auto 16px'
-          }}>
+        <div className="health-recommendations-loading">
+          <div className="health-recommendations-loading-spinner">
             <span></span>
             <span></span>
             <span></span>
           </div>
-          <p style={{ fontSize: '16px', color: '#6b7280', margin: 0 }}>Loading recommendations...</p>
+          <p className="health-recommendations-loading-text">Loading recommendations...</p>
         </div>
       ) : (
-        <div className="grid-responsive">
+        <div className="health-recommendations-grid">
           {recommendations.map((rec) => {
-            const priorityStyle = getPriorityColor(rec.priority)
             return (
-              <div key={rec.id} className="glass-card card-hover animate-fade-in-scale">
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'flex-start', 
-                  marginBottom: '16px' 
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '24px' }}>
+              <div key={rec.id} className="health-recommendations-item">
+                <div className="health-recommendations-item-header">
+                  <div className="health-recommendations-item-title-section">
+                    <span className="health-recommendations-item-icon">
                       {categories.find(cat => cat.id === rec.category)?.icon}
                     </span>
-                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>
+                    <h3 className="health-recommendations-item-title">
                       {rec.title}
                     </h3>
                   </div>
-                  <span className="status-indicator" style={{
-                    backgroundColor: priorityStyle.bg,
-                    color: priorityStyle.text,
-                    border: `1px solid ${priorityStyle.border}`,
-                    textTransform: 'capitalize'
-                  }}>
+                  <span className={`health-recommendations-priority ${rec.priority}`}>
                     {rec.priority}
                   </span>
                 </div>
 
-                <p style={{ color: '#6b7280', marginBottom: '20px', lineHeight: '1.6', margin: 0 }}>
+                <p className="health-recommendations-item-description">
                   {rec.description}
                 </p>
 
-                <div>
-                  <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#374151', margin: 0, marginBottom: '12px' }}>
+                <div className="health-recommendations-action-steps">
+                  <h4 className="health-recommendations-action-title">
                     Action Steps:
                   </h4>
-                  <ul style={{ margin: 0, paddingLeft: '0', listStyle: 'none' }}>
+                  <ul className="health-recommendations-tips-list">
                     {rec.tips.map((tip, index) => (
-                      <li key={index} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '8px' }}>
-                        <div style={{
-                          width: '6px',
-                          height: '6px',
-                          backgroundColor: '#059669',
-                          borderRadius: '50%',
-                          marginTop: '6px',
-                          marginRight: '12px',
-                          flexShrink: 0
-                        }}></div>
-                        <span style={{ color: '#6b7280', fontSize: '14px' }}>{tip}</span>
+                      <li key={index} className="health-recommendations-tip-item">
+                        <div className="health-recommendations-tip-bullet"></div>
+                        <span className="health-recommendations-tip-text">{tip}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="glass-card" style={{
-                  marginTop: '20px',
-                  backgroundColor: '#f9fafb',
-                  borderLeft: '4px solid #059669'
-                }}>
-                  <p style={{ fontSize: '12px', color: '#374151', margin: 0, fontStyle: 'italic' }}>
+                <div className="health-recommendations-tip-card">
+                  <p className="health-recommendations-tip-text">
                     💡 Tip: Start with small, manageable changes and gradually build healthy habits over time.
                   </p>
                 </div>
@@ -255,32 +198,20 @@ export default function HealthRecommendations() {
       )}
 
       {/* Health Score Card */}
-      <div className="glass-card card-hover animate-fade-in-scale" style={{
-        marginTop: '32px',
-        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-        color: 'white'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="health-recommendations-score-card">
+        <div className="health-recommendations-score-content">
           <div>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', margin: 0, marginBottom: '8px' }}>
+            <h3 className="health-recommendations-score-title">
               Your Health Score
             </h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
+            <p className="health-recommendations-score-subtitle">
               Based on your activity and health habits
             </p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <div className="gradient-border" style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative'
-            }}>
-              <span style={{ fontSize: '24px', fontWeight: 'bold' }}>85</span>
-              <span style={{ fontSize: '12px', position: 'absolute', bottom: '18px' }}>%</span>
+          <div className="health-recommendations-score-display">
+            <div className="health-recommendations-score-circle">
+              <span className="health-recommendations-score-number">85</span>
+              <span className="health-recommendations-score-percent">%</span>
             </div>
           </div>
         </div>

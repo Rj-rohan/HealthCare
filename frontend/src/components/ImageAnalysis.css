@@ -1,0 +1,124 @@
+/* Image Analysis - Theme-aware styles */
+
+.image-analysis-container {
+  min-height: 100vh;
+  background: var(--background);
+  padding: 2rem;
+}
+
+.image-analysis-header { margin-bottom: 2rem; }
+
+.image-analysis-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.image-analysis-subtitle { margin: 0; color: var(--text-muted); font-weight: 500; }
+
+.image-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.5rem;
+}
+
+.image-analysis-upload-card,
+.image-analysis-results-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.image-analysis-upload-card:hover,
+.image-analysis-results-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+
+.image-analysis-card-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.image-analysis-card-icon { font-size: 1.5rem; }
+.image-analysis-card-title { margin: 0; color: var(--text-primary); font-size: 1.125rem; font-weight: 700; }
+
+.image-analysis-upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  transition: border-color .2s ease;
+}
+.image-analysis-upload-area:hover { border-color: var(--primary); }
+
+.image-analysis-preview { max-width: 100%; max-height: 300px; border-radius: 10px; margin-bottom: .75rem; }
+.image-analysis-filename { margin: 0; color: var(--text-muted); font-size: .875rem; }
+
+.image-analysis-upload-icon {
+  width: 64px; height: 64px; margin: 0 auto .75rem;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+  border-radius: 12px; background: var(--primary-ghost); color: var(--primary);
+}
+.image-analysis-upload-text { margin: 0 0 .25rem 0; color: var(--text-primary); font-weight: 600; }
+.image-analysis-upload-hint { margin: 0; color: var(--text-muted); font-size: .875rem; }
+
+.image-analysis-actions { display: flex; gap: .75rem; }
+.image-analysis-choose-btn { flex: 1; text-align: center; padding: .75rem 1rem; cursor: pointer; }
+.image-analysis-analyze-btn { flex: 1; padding: .75rem 1rem; border-radius: .5rem; border: 0; font-weight: 700; transition: filter .2s ease; }
+.image-analysis-analyze-btn.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
+.image-analysis-analyze-btn.disabled { background: linear-gradient(135deg, var(--muted), var(--border)); color: #fff; cursor: not-allowed; filter: grayscale(.2); }
+
+.image-analysis-supported-types { background: var(--surface); border-radius: 10px; padding: 1rem; margin-top: 1rem; }
+.image-analysis-supported-title { margin: 0 0 .5rem 0; color: var(--text-primary); font-size: .9rem; font-weight: 700; }
+.image-analysis-supported-list { margin: 0; padding-left: 1rem; color: var(--text-muted); font-size: .9rem; }
+.image-analysis-supported-list li { margin-bottom: .25rem; }
+
+.image-analysis-results-title { margin: 0 0 1rem 0; color: var(--text-primary); font-size: 1.125rem; font-weight: 700; }
+
+.image-analysis-empty-state, .image-analysis-loading-state { text-align: center; padding: 3rem 0; }
+.image-analysis-empty-icon { width: 80px; height: 80px; margin: 0 auto .75rem; font-size: 32px; display: grid; place-items: center; background: var(--surface); border-radius: 16px; color: var(--text-muted); }
+.image-analysis-empty-title { margin: 0 0 .25rem 0; color: var(--text-primary); font-weight: 700; }
+.image-analysis-empty-subtitle { margin: 0; color: var(--text-muted); font-size: .9rem; }
+
+.image-analysis-loading-spinner { width: 48px; height: 14px; margin: 0 auto .75rem; display: flex; gap: 6px; align-items: center; justify-content: center; }
+.image-analysis-loading-spinner span { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: loading-dots 1.2s infinite ease-in-out; }
+.image-analysis-loading-spinner span:nth-child(1) { animation-delay: -0.24s; }
+.image-analysis-loading-spinner span:nth-child(2) { animation-delay: -0.12s; }
+
+@keyframes loading-dots { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+.image-analysis-confidence-card { background: var(--primary-ghost); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+.image-analysis-confidence-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
+.image-analysis-confidence-label { color: var(--text-primary); font-weight: 600; font-size: .9rem; }
+.image-analysis-confidence-score { color: var(--primary); font-weight: 800; }
+.image-analysis-confidence-bar { width: 100%; height: 8px; background: var(--surface); border-radius: 999px; overflow: hidden; }
+.image-analysis-confidence-fill { height: 100%; background: var(--primary); transition: width .4s ease; }
+
+.image-analysis-findings-section, .image-analysis-recommendations-section { margin-top: 1rem; }
+.image-analysis-section-title { margin: 0 0 .5rem 0; color: var(--text-primary); font-size: 1rem; font-weight: 700; }
+.image-analysis-findings-list, .image-analysis-recommendations-list { margin: 0; padding: 0; list-style: none; }
+.image-analysis-finding-item, .image-analysis-recommendation-item { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .5rem; }
+.image-analysis-finding-bullet { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-top: .5rem; }
+.image-analysis-recommendation-bullet { width: 6px; height: 6px; background: var(--success); border-radius: 50%; margin-top: .5rem; }
+.image-analysis-finding-text, .image-analysis-recommendation-text { color: var(--text-muted); font-size: .9rem; }
+
+.image-analysis-disclaimer { margin-top: 2rem; background: var(--warning-ghost); border: 1px solid var(--warning); border-radius: 12px; padding: 1rem; }
+.image-analysis-disclaimer-text { margin: 0; color: var(--warning-dark); font-size: .9rem; }
+
+/* Dark mode tweaks */
+[data-theme="dark"] .image-analysis-upload-area { background: rgba(40,40,40,.7); border-color: rgba(255,255,255,.08); }
+[data-theme="dark"] .image-analysis-upload-icon { background: rgba(124,58,237,.18); color: var(--primary); }
+[data-theme="dark"] .image-analysis-supported-types { background: rgba(30,30,30,.7); }
+[data-theme="dark"] .image-analysis-confidence-card { background: rgba(59,130,246,.18); }
+[data-theme="dark"] .image-analysis-disclaimer { background: rgba(245,158,11,.18); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .image-analysis-container { padding: 1rem; }
+  .image-analysis-title { font-size: 1.875rem; }
+  .image-analysis-grid { grid-template-columns: 1fr; }
+  .image-analysis-actions { flex-direction: column; }
+}

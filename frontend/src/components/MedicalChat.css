@@ -1,0 +1,97 @@
+/* Medical Chat - Theme-aware styles */
+
+.medical-chat-container { min-height: 100vh; background: var(--background); padding: 2rem; }
+
+/* Header */
+.medical-chat-header { margin-bottom: 2rem; }
+.medical-chat-title { margin: 0 0 .5rem 0; font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.medical-chat-subtitle { margin: 0; color: var(--text-muted); font-weight: 500; }
+
+/* Chat Card */
+.medical-chat-card { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 600px; }
+.medical-chat-card-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .75rem; }
+/* Avatar (large) */
+.medical-chat-avatar { 
+  width: 44px; 
+  height: 44px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  border-radius: 12px; 
+  background: var(--surface); 
+  border: 1px solid var(--glass-border); 
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  font-size: 22px; 
+  line-height: 1; 
+  padding: 0; 
+}
+
+/* Improve visibility in dark mode */
+[data-theme="dark"] .medical-chat-avatar { 
+  background: rgba(40,40,40,0.85); 
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+.medical-chat-card-title { margin: 0; color: var(--text-primary); font-weight: 700; font-size: 1rem; }
+.medical-chat-card-status { margin: 0; color: var(--text-muted); font-size: .875rem; }
+
+/* Messages */
+.medical-chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.medical-chat-row { display: flex; }
+.medical-chat-row.left { justify-content: flex-start; }
+.medical-chat-row.right { justify-content: flex-end; }
+
+.medical-chat-bubble { max-width: 70%; padding: 12px 16px; border-radius: 18px; }
+.medical-chat-bubble.user { background: var(--primary); color: #fff; border-top-right-radius: 4px; }
+.medical-chat-bubble.ai { background: rgba(255,255,255,.8); color: var(--text-primary); border-top-left-radius: 4px; }
+
+/* Dark mode bubble for AI */
+[data-theme="dark"] .medical-chat-bubble.ai { background: rgba(40,40,40,.85); color: var(--text-primary); }
+
+.medical-chat-text { margin: 0; font-size: .9rem; line-height: 1.5; }
+.medical-chat-time { margin: 4px 0 0 0; font-size: .75rem; opacity: .7; }
+
+/* Typing */
+.medical-chat-typing { display: flex; align-items: center; gap: 4px; }
+.medical-chat-typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: chat-dots 1.2s infinite ease-in-out; }
+.medical-chat-typing span:nth-child(1) { animation-delay: -0.24s; }
+.medical-chat-typing span:nth-child(2) { animation-delay: -0.12s; }
+@keyframes chat-dots { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+/* Input */
+.medical-chat-input { padding: 20px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+.medical-chat-input-field { flex: 1; border-radius: 24px; }
+.medical-chat-send-btn { padding: 12px 20px; border-radius: 24px; border: 0; font-weight: 700; }
+.medical-chat-send-btn.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; cursor: pointer; }
+.medical-chat-send-btn.disabled { background: linear-gradient(135deg, var(--muted), var(--border)); color: #fff; cursor: not-allowed; filter: grayscale(.2); }
+
+/* Disclaimer */
+.medical-chat-disclaimer { max-width: 800px; margin: 24px auto 0; background: var(--warning-ghost); border: 1px solid var(--warning); }
+.medical-chat-disclaimer-text { margin: 0; color: var(--warning-dark); font-size: .9rem; }
+
+/* Icon sizes */
+.icon-20 { width: 20px; height: 20px; }
+.icon-18 { width: 18px; height: 18px; }
+.icon-16 { width: 16px; height: 16px; }
+.icon-14 { width: 14px; height: 14px; }
+
+/* Header actions */
+.medical-chat-header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; color: var(--text-muted); }
+
+/* Status dot */
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.status-dot.online { background: var(--success); box-shadow: 0 0 0 3px var(--success-bg); }
+
+/* Small avatars beside bubbles */
+.medical-chat-avatar-small { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; margin-right: 8px; flex-shrink: 0; }
+.medical-chat-avatar-small.ai { background: var(--primary-ghost); color: var(--primary); }
+.medical-chat-avatar-small.user { background: var(--accent-ghost); color: var(--accent); }
+
+/* Align avatar with row */
+.medical-chat-row { align-items: flex-end; gap: 6px; }
+
+/* Time row with icon */
+.medical-chat-time { display: flex; align-items: center; gap: 6px; }
+
+/* Send button layout with icon */
+.medical-chat-send-btn { display: inline-flex; align-items: center; gap: 8px; }

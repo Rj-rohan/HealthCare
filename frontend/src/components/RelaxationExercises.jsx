@@ -172,31 +172,76 @@ export default function RelaxationExercises() {
         </h2>
         
         <div className="grid-responsive" style={{ marginBottom: '20px' }}>
-          <div className="stat-card card-hover" style={{
-            background: 'rgba(76, 175, 80, 0.1)',
-            textAlign: 'center'
-          }}>
-            <div className="stat-number" style={{ color: '#4caf50' }}>📊</div>
+          <div className="stat-card card-hover" style={{ background: 'rgba(76, 175, 80, 0.1)', textAlign: 'center', backdropFilter: 'blur(20px)', borderRadius: '16px', transition: '0.3s', padding: '24px', border: '0.8px solid rgba(255, 255, 255, 0.2)' }}>
+            <div
+              className="stat-number"
+              style={{
+                width: '56px',
+                height: '56px',
+                display: 'grid',
+                placeItems: 'center',
+                margin: '0 auto 12px',
+                fontSize: '28px',
+                fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif',
+                color: 'initial',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid rgba(0, 0, 0, 0.06)',
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.12)',
+                borderRadius: '12px'
+              }}
+            >
+              📊
+            </div>
             <div className="stat-label" style={{ color: '#4caf50' }}>
               Stress Level: {stressLevel}/10
             </div>
           </div>
           
-          <div className="stat-card card-hover" style={{
-            background: 'rgba(33, 150, 243, 0.1)',
-            textAlign: 'center'
-          }}>
-            <div className="stat-number" style={{ color: '#2196f3' }}>🏆</div>
+          <div className="stat-card card-hover" style={{ background: 'rgba(33, 150, 243, 0.1)', textAlign: 'center', backdropFilter: 'blur(20px)', borderRadius: '16px', transition: '0.3s', padding: '24px', border: '0.8px solid rgba(255, 255, 255, 0.2)' }}>
+            <div
+              className="stat-number"
+              style={{
+                width: '56px',
+                height: '56px',
+                display: 'grid',
+                placeItems: 'center',
+                margin: '0 auto 12px',
+                fontSize: '28px',
+                fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif',
+                color: 'initial',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid rgba(0, 0, 0, 0.06)',
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.12)',
+                borderRadius: '12px'
+              }}
+            >
+              🏆
+            </div>
             <div className="stat-label" style={{ color: '#2196f3' }}>
               Sessions: {completedSessions}
             </div>
           </div>
           
-          <div className="stat-card card-hover" style={{
-            background: 'rgba(156, 39, 176, 0.1)',
-            textAlign: 'center'
-          }}>
-            <div className="stat-number" style={{ color: '#9c27b0' }}>🤖</div>
+          <div className="stat-card card-hover" style={{ background: 'rgba(156, 39, 176, 0.1)', textAlign: 'center', backdropFilter: 'blur(20px)', borderRadius: '16px', transition: '0.3s', padding: '24px', border: '0.8px solid rgba(255, 255, 255, 0.2)' }}>
+            <div
+              className="stat-number"
+              style={{
+                width: '56px',
+                height: '56px',
+                display: 'grid',
+                placeItems: 'center',
+                margin: '0 auto 12px',
+                fontSize: '28px',
+                fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif',
+                color: 'initial',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid rgba(0, 0, 0, 0.06)',
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.12)',
+                borderRadius: '12px'
+              }}
+            >
+              🤖
+            </div>
             <div className="stat-label" style={{ color: '#9c27b0' }}>
               AI Active
             </div>
